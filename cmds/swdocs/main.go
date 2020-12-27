@@ -1,11 +1,16 @@
 package main
 
+/// TODO handlers: Do not return the raw error as it can expose backend sensitivy data
+/// TODO Write tests
+/// TODO Add comments / godoc
+
 import (
 	"flag"
 	"fmt"
 	"os"
 
 	"github.com/andrecp/swdocs"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -28,7 +33,6 @@ func init() {
 func main() {
 	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
 	nameCreateCmd := createCmd.String("name", "", "The name of what you're documenting! Goes into the URL -> /name")
-	descriptionCreateCmd := createCmd.String("description", "", "A description for the mdoc")
 
 	editCmd := flag.NewFlagSet("edit", flag.ExitOnError)
 	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
@@ -47,8 +51,6 @@ func main() {
 			fmt.Println("--name is required when creating a new swdoc")
 			os.Exit(1)
 		}
-		newSwDoc := swdocs.NewSwDoc(*nameCreateCmd, *descriptionCreateCmd)
-		fmt.Printf("(%+v)\n", newSwDoc)
 	case "edit":
 		editCmd.Parse(os.Args[2:])
 	case "delete":
