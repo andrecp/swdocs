@@ -3,9 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	"github.com/andrecp/swdocs"
 	log "github.com/sirupsen/logrus"
-	"os"
 )
 
 func init() {
@@ -16,8 +17,12 @@ func init() {
 	// Can be any io.Writer, see below for File example
 	log.SetOutput(os.Stdout)
 
-	// Only log the warning severity or above.
-	log.SetLevel(log.WarnLevel)
+	// Only log the warning severity or above if unset.
+	loglevel, err := log.ParseLevel(os.Getenv("SWDOCS_LOGLEVEL"))
+	if err != nil {
+		log.SetLevel(log.WarnLevel)
+	}
+	log.SetLevel(loglevel)
 }
 
 func main() {
@@ -54,10 +59,7 @@ func main() {
 	case "serve":
 		serveCmd.Parse(os.Args[2:])
 		a := swdocs.App{}
-		a.Initialize(
-			os.Getenv("APP_DB_USERNAME"),
-			os.Getenv("APP_DB_PASSWORD"),
-			os.Getenv("APP_DB_NAME"))
+		a.Initialize(os.Getenv("SWDOCS_DBNAME"))
 
 		a.Run(os.Getenv("SWDOCS_PORT"))
 
