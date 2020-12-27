@@ -1,9 +1,9 @@
 package swdocs
 
 type SwDoc struct {
-	id          int
-	name        string
-	description string
+	Id          int64  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 type SwDocLink struct {
