@@ -19,6 +19,11 @@ type App struct {
 	DB     *sql.DB
 }
 
+func (a *App) initializeRoutes() {
+	a.Router.HandleFunc("/", a.homeHandler)
+	a.Router.HandleFunc("/api/v1/swdocs", a.createSwDoc).Methods("POST")
+}
+
 func (a *App) createDbIfNotExists(dbpath string) (bool, error) {
 	_, err := os.Stat(dbpath)
 	if err == nil {
@@ -36,9 +41,9 @@ func (a *App) createDbIfNotExists(dbpath string) (bool, error) {
 
 func (a *App) populateDb() error {
 	dbSchema := `
-    CREATE TABLE IF NOT EXISTS SwDocs (
+    CREATE TABLE IF NOT EXISTS swdocs (
 		id INTEGER PRIMARY KEY,
-		name TEXT,
+		name TEXT UNIQUE,
 		description TEXT)
 	`
 	statement, err := a.DB.Prepare(dbSchema)
@@ -75,14 +80,11 @@ func (a *App) Initialize(dbpath string) {
 		}
 	}
 
-	// Start the web app.
+	// Initialize the web app routes.
 	a.Router = mux.NewRouter()
+	a.initializeRoutes()
 }
 
 func (a *App) Run(addr string) {
-
-	a.Router.HandleFunc("/", HomeHandler)
-
-	// Bind to a port and pass our router in
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", addr), a.Router))
 }
