@@ -19,33 +19,63 @@ type App struct {
 	DB     *sql.DB
 }
 
-func createDbIfNotExists(dbname string) error {
-	dbFile := fmt.Sprintf("%s.db", dbname)
-	_, err := os.Stat(dbFile)
+func (a *App) createDbIfNotExists(dbpath string) (bool, error) {
+	_, err := os.Stat(dbpath)
 	if err == nil {
-		log.Info("Database " + dbFile + " already exists")
+		log.Info("Database " + dbpath + " already exists")
 	} else if os.IsNotExist(err) {
-		log.Info("Creating database " + dbFile)
-		file, err := os.Create(dbFile)
+		log.Info("Creating database " + dbpath)
+		file, err := os.Create(dbpath)
 		if err != nil {
-			return err
+			return true, err
 		}
-		return file.Close()
+		return false, file.Close()
+	}
+	return true, nil
+}
+
+func (a *App) populateDb() error {
+	dbSchema := `
+    CREATE TABLE IF NOT EXISTS SwDocs (
+		id INTEGER PRIMARY KEY,
+		name TEXT,
+		description TEXT)
+	`
+	statement, err := a.DB.Prepare(dbSchema)
+	if err != nil {
+		return err
+	}
+	_, err = statement.Exec()
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
-func (a *App) Initialize(dbname string) {
+func (a *App) Initialize(dbpath string) {
 	var err error
-	if err = createDbIfNotExists(dbname); err != nil {
+
+	// Create DB file if not exists.
+	exists, err := a.createDbIfNotExists(dbpath)
+	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	a.DB, err = sql.Open("sqlite3", dbname)
+	// Open up a DB connection.
+	a.DB, err = sql.Open("sqlite3", dbpath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Create tables in DB if it didn't exist before.
+	if !exists {
+		err = a.populateDb()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Start the web app.
 	a.Router = mux.NewRouter()
 }
 

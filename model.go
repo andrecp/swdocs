@@ -1,8 +1,8 @@
 package swdocs
 
 type SwDoc struct {
+	id          int
 	name        string
-	title       string
 	description string
 }
 

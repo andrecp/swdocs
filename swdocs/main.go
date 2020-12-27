@@ -28,7 +28,6 @@ func init() {
 func main() {
 	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
 	nameCreateCmd := createCmd.String("name", "", "The name of what you're documenting! Goes into the URL -> /name")
-	titleCreateCmd := createCmd.String("title", "", "A title for the webpage hosting the mdoc")
 	descriptionCreateCmd := createCmd.String("description", "", "A description for the mdoc")
 
 	editCmd := flag.NewFlagSet("edit", flag.ExitOnError)
@@ -45,11 +44,11 @@ func main() {
 	case "create":
 		createCmd.Parse(os.Args[2:])
 		if *nameCreateCmd == "" {
-			fmt.Println("--name is required when creating a new mdoc")
+			fmt.Println("--name is required when creating a new swdoc")
 			os.Exit(1)
 		}
-		newMdoc := swdocs.NewSwDoc(*nameCreateCmd, *titleCreateCmd, *descriptionCreateCmd)
-		fmt.Printf("(%+v)\n", newMdoc)
+		newSwDoc := swdocs.NewSwDoc(*nameCreateCmd, *descriptionCreateCmd)
+		fmt.Printf("(%+v)\n", newSwDoc)
 	case "edit":
 		editCmd.Parse(os.Args[2:])
 	case "delete":
@@ -59,7 +58,7 @@ func main() {
 	case "serve":
 		serveCmd.Parse(os.Args[2:])
 		a := swdocs.App{}
-		a.Initialize(os.Getenv("SWDOCS_DBNAME"))
+		a.Initialize(os.Getenv("SWDOCS_DBPATH"))
 
 		a.Run(os.Getenv("SWDOCS_PORT"))
 
