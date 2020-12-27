@@ -81,7 +81,7 @@ func (a *App) Initialize(dbpath string) {
 
 func (a *App) Run(addr string) {
 
-	a.Router.HandleFunc("/", YourHandler)
+	a.Router.HandleFunc("/", HomeHandler)
 
 	// Bind to a port and pass our router in
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", addr), a.Router))
