@@ -47,11 +47,11 @@ func (a *App) homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (a *App) createSwDoc(w http.ResponseWriter, r *http.Request) {
+func (a *App) createSwDocHandler(w http.ResponseWriter, r *http.Request) {
 	var s SwDoc
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&s); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload.\n"+err.Error())
 		return
 	}
 

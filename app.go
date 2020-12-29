@@ -19,9 +19,21 @@ type App struct {
 	DB     *sql.DB
 }
 
+const (
+	dbSchema = `
+    CREATE TABLE IF NOT EXISTS swdocs (
+		id INTEGER PRIMARY KEY,
+		name TEXT UNIQUE,
+		created NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		updated NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		description TEXT,
+		sections TEXT)
+	`
+)
+
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/", a.homeHandler)
-	a.Router.HandleFunc("/api/v1/swdocs", a.createSwDoc).Methods("POST")
+	a.Router.HandleFunc("/api/v1/swdocs", a.createSwDocHandler).Methods("POST")
 }
 
 func (a *App) createDbIfNotExists(dbpath string) (bool, error) {
@@ -40,12 +52,11 @@ func (a *App) createDbIfNotExists(dbpath string) (bool, error) {
 }
 
 func (a *App) populateDb() error {
-	dbSchema := `
-    CREATE TABLE IF NOT EXISTS swdocs (
-		id INTEGER PRIMARY KEY,
-		name TEXT UNIQUE,
-		description TEXT)
-	`
+	_, err := a.DB.Exec("PRAGMA encoding = \"UTF-8\";")
+	if err != nil {
+		return err
+	}
+
 	statement, err := a.DB.Prepare(dbSchema)
 	if err != nil {
 		return err

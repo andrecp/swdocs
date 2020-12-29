@@ -3,13 +3,13 @@ package swdocs
 import "database/sql"
 
 func CreateSwDoc(db *sql.DB, swdoc *SwDoc) error {
-	query := "INSERT INTO swdocs (name, description) VALUES (?, ?)"
+	query := "INSERT INTO swdocs (name, description, sections) VALUES (?, ?, ?)"
 	statement, err := db.Prepare(query)
 	if err != nil {
 		return err
 	}
 
-	res, err := statement.Exec(swdoc.Name, swdoc.Description)
+	res, err := statement.Exec(swdoc.Name, swdoc.Description, swdoc.Sections)
 	if err != nil {
 		return err
 	}

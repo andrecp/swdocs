@@ -12,13 +12,29 @@ package main
  */
 
 import (
+	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 
 	"github.com/andrecp/swdocs"
 
 	log "github.com/sirupsen/logrus"
+)
+
+const (
+	httpAddress = "http://localhost:8087"
+)
+
+type (
+	CreateRequest struct {
+		Name        string          `json:"name"`
+		Description string          `json:"description"`
+		Sections    json.RawMessage `json:"sections"`
+	}
 )
 
 func init() {
@@ -40,30 +56,52 @@ func init() {
 func main() {
 	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
 	nameCreateCmd := createCmd.String("name", "", "The name of what you're documenting! Goes into the URL -> /name")
+	descriptionCreateCmd := createCmd.String("description", "", "A description of what it is.")
+	sectionsCreateCmd := createCmd.String("sections", "", "JSON with the value, for example, [{\"header\":\"Dashboards\",\"links\":[{\"url\":\"http://kibana.ilm-sf:5601\",\"description\":\"Kibana boards\"}]}]\n")
 
 	editCmd := flag.NewFlagSet("edit", flag.ExitOnError)
 	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
-	linkCmd := flag.NewFlagSet("link", flag.ExitOnError)
 	serveCmd := flag.NewFlagSet("serve", flag.ExitOnError)
 
 	if len(os.Args) < 2 {
-		fmt.Println("Missing subcommand, use one of: `create`, `edit`, `delete`, `link` or `serve`.")
+		fmt.Println("Missing subcommand, use one of: `create`, `edit`, `delete`, or `serve`.")
 		os.Exit(1)
 	}
-
 	switch os.Args[1] {
 	case "create":
-		createCmd.Parse(os.Args[2:])
+		err := createCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
 		if *nameCreateCmd == "" {
 			fmt.Println("--name is required when creating a new swdoc")
 			os.Exit(1)
 		}
+		requestBody, err := json.Marshal(CreateRequest{
+			Name:        *nameCreateCmd,
+			Description: *descriptionCreateCmd,
+			Sections:    json.RawMessage(*sectionsCreateCmd),
+		})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		resp, err := http.Post(httpAddress+"/api/v1/swdocs", "application/json", bytes.NewBuffer(requestBody))
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Info(string(body))
+
 	case "edit":
 		editCmd.Parse(os.Args[2:])
 	case "delete":
 		deleteCmd.Parse(os.Args[2:])
-	case "link":
-		linkCmd.Parse(os.Args[2:])
 	case "serve":
 		serveCmd.Parse(os.Args[2:])
 		a := swdocs.App{}

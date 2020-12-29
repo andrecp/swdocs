@@ -1,6 +1,12 @@
 POST http://localhost:8087/api/v1/swdocs
 Content-Type: application/json
 
-{"name": "zeromq", "description": "A library that abstracts sockets"}
+{
+  "name": "zeromq",
+  "description": "A library that abstracts sockets",
+    "sections": [
+      {"header": "Dashboards", "links": [{"url": "http://kibana.ilm-sf:5601", "description": "Kibana boards"}]}
+    ]
+}
 
 ###
