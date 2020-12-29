@@ -5,7 +5,7 @@ Content-Type: application/json
   "name": "zeromq",
   "description": "A library that abstracts sockets",
     "sections": [
-      {"header": "Dashboards", "links": [{"url": "http://kibana.ilm-sf:5601", "description": "Kibana boards"}]}
+      {"header": "Dashboards", "links": [{"url": "http://kibana.domain.com:5601", "description": "Kibana boards"}]}
     ]
 }
 

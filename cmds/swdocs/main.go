@@ -57,7 +57,7 @@ func main() {
 	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
 	nameCreateCmd := createCmd.String("name", "", "The name of what you're documenting! Goes into the URL -> /name")
 	descriptionCreateCmd := createCmd.String("description", "", "A description of what it is.")
-	sectionsCreateCmd := createCmd.String("sections", "", "JSON with the value, for example, [{\"header\":\"Dashboards\",\"links\":[{\"url\":\"http://kibana.ilm-sf:5601\",\"description\":\"Kibana boards\"}]}]\n")
+	sectionsCreateCmd := createCmd.String("sections", "", "JSON with the value, for example, '[{\"header\":\"Dashboards\",\"links\":[{\"url\":\"http://kibana.domain.com:5601\",\"description\":\"Kibana boards\"}]}]'")
 
 	editCmd := flag.NewFlagSet("edit", flag.ExitOnError)
 	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
