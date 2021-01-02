@@ -39,8 +39,11 @@ func (a *App) homeHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	docs := GetMostRecentSwDocs()
-	h := HomePage{docs}
+	docs, err := GetMostRecentSwDocs(a.DB)
+	if err != nil {
+		panic(err)
+	}
+	h := HomePage{&docs}
 	err = t.Execute(w, h)
 	if err != nil {
 		panic(err)
