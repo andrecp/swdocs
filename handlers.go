@@ -53,6 +53,29 @@ func (a *App) homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (a *App) swDocHandler(w http.ResponseWriter, r *http.Request) {
+	message, err := ioutil.ReadFile("../../templates/swdoc.gohtml")
+	if err != nil {
+		panic(err)
+	}
+
+	t, err := template.New("SwDoc").Parse(string(message))
+	if err != nil {
+		panic(err)
+	}
+
+	doc, err := GetSwDoc(a.DB)
+	if err != nil {
+		panic(err)
+	}
+	err = t.Execute(w, doc)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// REST API //
+
 func (a *App) createSwDocHandler(w http.ResponseWriter, r *http.Request) {
 	var s SwDoc
 	decoder := json.NewDecoder(r.Body)
