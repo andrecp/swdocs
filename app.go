@@ -36,6 +36,7 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/search", a.searchHandler).Methods("GET")
 	a.Router.HandleFunc("/{swDocName}", a.swDocHandler).Methods("GET")
 	a.Router.HandleFunc("/api/v1/swdocs", a.createSwDocHandler).Methods("POST")
+	a.Router.HandleFunc("/api/v1/swdocs/{swDocName}", a.deleteSwDocHandler).Methods("DELETE")
 }
 
 func (a *App) createDbIfNotExists(dbpath string) (bool, error) {

@@ -44,16 +44,20 @@ func init() {
 
 func main() {
 	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
-	nameCreateCmd := createCmd.String("name", "", "The name of what you're documenting! Goes into the URL -> /name")
-	descriptionCreateCmd := createCmd.String("description", "", "A description of what it is.")
+	nameCreateCmd := createCmd.String("name", "", "The name of the SwDoc you're creating! Goes into the URL -> /:name")
+	descriptionCreateCmd := createCmd.String("description", "", "A description of the SwDoc is.")
 	sectionsCreateCmd := createCmd.String("sections", "", "JSON with the value, for example, '[{\"header\":\"Dashboards\",\"links\":[{\"url\":\"http://kibana.domain.com:5601\",\"description\":\"Kibana boards\"}]}]'")
 
-	editCmd := flag.NewFlagSet("edit", flag.ExitOnError)
 	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
+	nameDeleteCmd := deleteCmd.String("name", "", "The name of the SwDoc you want to delete")
+
+	applyCmd := flag.NewFlagSet("apply", flag.ExitOnError)
+	filePathApplyCmd := deleteCmd.String("file", "", "The file you want to apply")
+
 	serveCmd := flag.NewFlagSet("serve", flag.ExitOnError)
 
 	if len(os.Args) < 2 {
-		fmt.Println("Missing subcommand, use one of: `create`, `edit`, `delete`, or `serve`.")
+		fmt.Println("Missing subcommand, use one of: `create`, `apply`, `delete`, or `serve`.")
 		os.Exit(1)
 	}
 	switch os.Args[1] {
@@ -86,11 +90,47 @@ func main() {
 			log.Fatal(err.Error())
 		}
 		log.Info(string(body))
-
-	case "edit":
-		editCmd.Parse(os.Args[2:])
 	case "delete":
-		deleteCmd.Parse(os.Args[2:])
+		err := deleteCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		if *nameDeleteCmd == "" {
+			fmt.Println("--name is required when deleting an existing swdoc")
+			os.Exit(1)
+		}
+
+		client := &http.Client{}
+		req, err := http.NewRequest("DELETE", httpAddress+"/api/v1/swdocs/"+*nameDeleteCmd, nil)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		// Fetch Request
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Info(string(body))
+
+	case "apply":
+		applyCmd.Parse(os.Args[2:])
+		err := applyCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		if *filePathApplyCmd == "" {
+			fmt.Println("--file is required to apply a file to SwDocs")
+			os.Exit(1)
+		}
 	case "serve":
 		serveCmd.Parse(os.Args[2:])
 		a := swdocs.App{}
@@ -99,7 +139,7 @@ func main() {
 		a.Run(os.Getenv("SWDOCS_PORT"))
 
 	default:
-		fmt.Println("Must use one of the subcommands `create`, `edit`, `delete`, `link` or `serve`.")
+		fmt.Println("Must use one of the subcommands `create`, `apply`, `delete`, `link` or `serve`.")
 		os.Exit(1)
 	}
 

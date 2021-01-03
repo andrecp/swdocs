@@ -7,6 +7,7 @@ const (
 	getSwDocSQL       = "SELECT name, description, sections, updated FROM swdocs WHERE name=?"
 	getRecentSwDocSQL = "SELECT name, description, created FROM swdocs ORDER BY ID DESC LIMIT 15"
 	searchSwDocSQL    = "SELECT name, updated FROM swdocs WHERE name like ?"
+	deleteSwDocSQL    = "DELETE FROM swdocs WHERE name=?"
 )
 
 func CreateSwDoc(db *sql.DB, swdoc *SwDoc) error {
@@ -95,4 +96,18 @@ func SearchSwDocsByName(db *sql.DB, name string) ([]SwDoc, error) {
 
 	return docs, nil
 
+}
+
+func DeleteSwDoc(db *sql.DB, name string) error {
+	statement, err := db.Prepare(deleteSwDocSQL)
+	if err != nil {
+		return err
+	}
+
+	_, err = statement.Exec(name)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

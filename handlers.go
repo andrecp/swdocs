@@ -2,6 +2,7 @@ package swdocs
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -72,6 +73,12 @@ func (a *App) swDocHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	if doc.Name == "" {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "SwDoc with this name does not exist")
+		return
+	}
+
 	err = t.Execute(w, doc)
 	if err != nil {
 		panic(err)
@@ -120,4 +127,16 @@ func (a *App) createSwDocHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusCreated, s)
+}
+
+func (a *App) deleteSwDocHandler(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	swdocName := params["swDocName"]
+
+	if err := DeleteSwDoc(a.DB, swdocName); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, nil)
 }
