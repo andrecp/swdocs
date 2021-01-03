@@ -1,14 +1,16 @@
 package main
 
-/*
-* TODO handlers: Do not return the raw error as it can expose backend sensitive data
-* TODO Write tests
-* TODO Add comments / godoc
-* TODO CRUD on docs
-* TODO Equivalent of apply of kubernetes with a yml that people can get a doc, edit and apply or just apply to create
-* TODO Versions of docs to allow for rolling back
-* TODO Style the app with template inheritance (header/footer) and the /$SwDoc page
-* TODO Implement a simple search functionality
+/* TODOS:
+* handlers: Do not return the raw error as it can expose backend sensitive data
+* Write tests
+* Add comments / godoc
+* CRUD on docs
+* Equivalent of apply of kubernetes with a yml that people can get a doc, edit and apply or just apply to create
+* Versions of docs to allow for rolling back
+* Style the app with template inheritance (header/footer) and the /$SwDoc page
+* Implement a simple search functionality
+* The templates folder at runtime need to be configurable
+* It is erroring silently when no .env file
  */
 
 import (
