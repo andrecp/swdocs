@@ -6,11 +6,11 @@ package main
 * Add comments / godoc
 * CRUD on docs
 * Equivalent of apply of kubernetes with a yml that people can get a doc, edit and apply or just apply to create
-* Versions of docs to allow for rolling back
 * Style the app with template inheritance (header/footer) and the /$SwDoc page
 * Implement a simple search functionality
 * The templates folder at runtime need to be configurable
 * It is erroring silently when no .env file
+* Test multiple writes, might need to tweak a bit sqlite (maximum of 1 conn, higher timeout) as per their docs, or, add a mux for writes.
  */
 
 import (
