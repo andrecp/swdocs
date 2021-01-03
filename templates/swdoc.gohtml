@@ -8,6 +8,16 @@
 
 <body>
 <h1>{{.Name}}</h1>
+<p>{{.Description}}</p>
+{{range .Sections}}
+<h2>{{.Header}}</h2>
+<ul>
+{{range .Links}}
+<a href="{{.URL}}">{{.Description}}</a>
+{{end}}
+</ul>
+{{end}}
+
 
 </body>
 
