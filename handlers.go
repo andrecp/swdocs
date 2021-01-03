@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -54,6 +55,8 @@ func (a *App) homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) swDocHandler(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	swdocName := params["swDocName"]
 	message, err := ioutil.ReadFile("../../templates/swdoc.gohtml")
 	if err != nil {
 		panic(err)
@@ -64,10 +67,11 @@ func (a *App) swDocHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	doc, err := GetSwDoc(a.DB)
+	doc, err := GetSwDocByName(a.DB, swdocName)
 	if err != nil {
 		panic(err)
 	}
+
 	err = t.Execute(w, doc)
 	if err != nil {
 		panic(err)

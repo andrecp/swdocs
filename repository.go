@@ -4,7 +4,7 @@ import "database/sql"
 
 const (
 	createSwDocSQL    = "INSERT INTO swdocs (name, description, sections) VALUES (?, ?, ?)"
-	getSwDocSQL       = "SELECT name, description, sections, updated FROM swdocs"
+	getSwDocSQL       = "SELECT name, description, sections, updated FROM swdocs WHERE name=?"
 	getRecentSwDocSQL = "SELECT name, description, created FROM swdocs ORDER BY ID DESC LIMIT 15"
 )
 
@@ -46,12 +46,18 @@ func GetMostRecentSwDocs(db *sql.DB) ([]SwDoc, error) {
 	return docs, nil
 }
 
-func GetSwDoc(db *sql.DB) (SwDoc, error) {
+func GetSwDocByName(db *sql.DB, name string) (SwDoc, error) {
 	var s SwDoc
-	rows, err := db.Query(getSwDocSQL)
+	statement, err := db.Prepare(getSwDocSQL)
 	if err != nil {
 		return s, err
 	}
+
+	rows, err := statement.Query(name)
+	if err != nil {
+		return s, err
+	}
+
 	defer rows.Close()
 	for rows.Next() {
 		if err := rows.Scan(&s.Name, &s.Description, &s.Sections, &s.Updated); err != nil {

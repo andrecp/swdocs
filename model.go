@@ -36,6 +36,16 @@ func (s SectionSlice) Value() (driver.Value, error) {
 	return json.Marshal(s)
 }
 
+func (s *SectionSlice) Scan(v interface{}) error {
+	var data []byte
+	if b, ok := v.([]byte); ok {
+		data = b
+	} else if s, ok := v.(string); ok {
+		data = []byte(s)
+	}
+	return json.Unmarshal(data, s)
+}
+
 func (t *TimeStamp) Scan(v interface{}) error {
 	// Should be more strictly to check this type.
 	vt, err := time.Parse("2006-01-02 15:04:05", v.(string))

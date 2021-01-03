@@ -6,11 +6,11 @@ Aggregate all of your software docs easily!
 
 ```bash
 
-Create a .env file
-
+# Create the .env file
 > cat .dev.env
 export SWDOCS_DBPATH=/tmp/swdocs.db
 export SWDOCS_PORT=8087
+export SWDOCS_LOGLEVEL=debug
 
 # Start the swdocs server and go to http://localhost:8087
 > make run  # or source .dev.env && swdocs serve
