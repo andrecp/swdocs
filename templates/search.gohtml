@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>swdocs home</title>
+    <title>swdocs search results</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css">
@@ -23,9 +23,22 @@
 
 <body>
 
-<h1>Welcome to SwDocs!</h1>
+<h1>Search SwDocs</h1>
 
-{{ $length := len .SwDocs }} {{ if not (eq $length 0) }}
+<section>
+{{ $length := len .SwDocs }} {{ if eq $length 0 }}
+<p>No SwDocs found for your search</p>
+{{else}}
+<h3>Found SwDocs</h3>
+{{end}}
+
+{{range .SwDocs}}
+<ul>
+    <li><a href="/{{.Name}}">{{.Name}} was last updated on {{with .Updated}}{{.ToString}}{{end}} (UTC)</a></li>
+</ul>
+{{end}}
+</section>
+
 <section>
     <h3>Search for a SwDoc</h3>
     <form action="/search">
@@ -33,23 +46,6 @@
         <input type="search" id="swdocsearch" name="swdocsearch">
         <input type="submit" value="search">
     </form>
-    {{end}}
-</section>
-
-</br>
-
-<section>
-    {{ $length := len .SwDocs }} {{ if not (eq $length 0) }}
-    <h3>Latest SwDocs created</h3>
-    {{else}}
-    <h3>No SwDocs found!</h3>
-    {{end}}
-
-    {{range .SwDocs}}
-    <ul>
-        <li><a href="/{{.Name}}">{{.Name}} was created on {{with .Created}}{{.ToString}}{{end}} (UTC)</a></li>
-    </ul>
-    {{end}}
 </section>
 
 </body>

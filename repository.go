@@ -6,6 +6,7 @@ const (
 	createSwDocSQL    = "INSERT INTO swdocs (name, description, sections) VALUES (?, ?, ?)"
 	getSwDocSQL       = "SELECT name, description, sections, updated FROM swdocs WHERE name=?"
 	getRecentSwDocSQL = "SELECT name, description, created FROM swdocs ORDER BY ID DESC LIMIT 15"
+	searchSwDocSQL    = "SELECT name, updated FROM swdocs WHERE name like ?"
 )
 
 func CreateSwDoc(db *sql.DB, swdoc *SwDoc) error {
@@ -66,5 +67,32 @@ func GetSwDocByName(db *sql.DB, name string) (SwDoc, error) {
 	}
 
 	return s, nil
+
+}
+
+func SearchSwDocsByName(db *sql.DB, name string) ([]SwDoc, error) {
+	var docs []SwDoc
+
+	statement, err := db.Prepare(searchSwDocSQL)
+	if err != nil {
+		return docs, err
+	}
+
+	rows, err := statement.Query(name)
+	if err != nil {
+		return docs, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var s SwDoc
+		if err := rows.Scan(&s.Name, &s.Updated); err != nil {
+			return nil, err
+		}
+		docs = append(docs, s)
+	}
+
+	return docs, nil
 
 }

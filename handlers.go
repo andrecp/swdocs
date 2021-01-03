@@ -11,7 +11,7 @@ import (
 )
 
 type (
-	HomePage struct {
+	SwDocsSlice struct {
 		SwDocs *[]SwDoc
 	}
 )
@@ -47,7 +47,7 @@ func (a *App) homeHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	h := HomePage{&docs}
+	h := SwDocsSlice{&docs}
 	err = t.Execute(w, h)
 	if err != nil {
 		panic(err)
@@ -73,6 +73,30 @@ func (a *App) swDocHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = t.Execute(w, doc)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (a *App) searchHandler(w http.ResponseWriter, r *http.Request) {
+	searchParams := r.URL.Query().Get("swdocsearch")
+	message, err := ioutil.ReadFile("../../templates/search.gohtml")
+	if err != nil {
+		panic(err)
+	}
+
+	t, err := template.New("Search").Parse(string(message))
+	if err != nil {
+		panic(err)
+	}
+
+	docs, err := SearchSwDocsByName(a.DB, searchParams)
+	if err != nil {
+		panic(err)
+	}
+
+	h := SwDocsSlice{&docs}
+	err = t.Execute(w, h)
 	if err != nil {
 		panic(err)
 	}

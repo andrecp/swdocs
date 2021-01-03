@@ -33,6 +33,7 @@ const (
 
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/", a.homeHandler).Methods("GET")
+	a.Router.HandleFunc("/search", a.searchHandler).Methods("GET")
 	a.Router.HandleFunc("/{swDocName}", a.swDocHandler).Methods("GET")
 	a.Router.HandleFunc("/api/v1/swdocs", a.createSwDocHandler).Methods("POST")
 }
