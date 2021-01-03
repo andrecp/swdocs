@@ -20,8 +20,9 @@ type TimeStamp time.Time
 type SectionSlice []Section
 
 type Section struct {
-	Header string    `json:"header"`
-	Links  LinkSlice `json:"links"`
+	Header      string    `json:"header"`
+	Description string    `json:"description"`
+	Links       LinkSlice `json:"links"`
 }
 
 type LinkSlice []Link
