@@ -28,8 +28,10 @@ func respondWithError(w http.ResponseWriter, code int, message string) {
 	respondWithJSON(w, code, map[string]string{"error": message})
 }
 
+// Templated HTML pages //
+
 func (a *App) homeHandler(w http.ResponseWriter, r *http.Request) {
-	message, err := ioutil.ReadFile("templates/home.gohtml")
+	message, err := ioutil.ReadFile("../../templates/home.gohtml")
 	if err != nil {
 		panic(err)
 	}
@@ -43,6 +45,7 @@ func (a *App) homeHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+
 	h := HomePage{&docs}
 	err = t.Execute(w, h)
 	if err != nil {

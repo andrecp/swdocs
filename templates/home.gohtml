@@ -7,11 +7,19 @@
 </head>
 
 <body>
-{{range .SwDocs}}
+<h1>Welcome to SwDocs!</h1>
+
+{{ $length := len .SwDocs }} {{ if eq $length 0 }}
+<h2>No Sw docs found!</h2>
 {{else}}
-    <p>No Sw docs found!</p>
+<h2>Latest Sw docs created</h2>
 {{end}}
 
+{{range .SwDocs}}
+<ul>
+    <li><a href="/{{.Name}}">{{.Name}} was created on {{with .Created}}{{.ToString}}{{end}} (UTC)</li>
+</ul>
+{{end}}
 
 </body>
 

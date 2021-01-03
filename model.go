@@ -45,3 +45,7 @@ func (t *TimeStamp) Scan(v interface{}) error {
 	*t = TimeStamp(vt)
 	return nil
 }
+
+func (t TimeStamp) ToString() string {
+	return time.Time(t).Format("2006-01-02 15:04:05")
+}
