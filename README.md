@@ -16,7 +16,7 @@ export SWDOCS_PORT=8087
 make run
 
 # Or
-source .dev.env swdocs serve
+source .dev.env && swdocs serve
 
 # Create a new mdoc page about the zeromq software package.
 swdocs create --name zeromq --description "ZeroMQ is a high-performance asynchronous messaging library, aimed at use in distributed or concurrent applications. It provides a message queue, but unlike message-oriented middleware, a ZeroMQ system can run without a dedicated message broker. "
