@@ -3,6 +3,7 @@ package swdocs
 import (
 	"database/sql"
 	"fmt"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 
@@ -17,6 +18,7 @@ import (
 type App struct {
 	Router *mux.Router
 	DB     *sql.DB
+	Mutex  sync.Mutex
 }
 
 func (a *App) initializeRoutes() {
