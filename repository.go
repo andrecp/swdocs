@@ -3,7 +3,21 @@ package swdocs
 import "database/sql"
 
 const (
-	createSwDocSQL    = "INSERT INTO swdocs (name, description, sections) VALUES (?, ?, ?)"
+	dbSchema = `
+    CREATE TABLE IF NOT EXISTS swdocs (
+		id INTEGER PRIMARY KEY,
+		name TEXT UNIQUE,
+		created NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		updated NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		description TEXT,
+		sections TEXT)
+	`
+	createSwDocSQL         = "INSERT INTO swdocs (name, description, sections) VALUES (?, ?, ?)"
+	createOrUpdateSwDocSQL = `INSERT INTO swdocs (name, description, sections) VALUES (?, ?, ?)
+								ON CONFLICT (name) DO UPDATE SET
+									sections=excluded.sections,
+									description=excluded.description,
+									updated=CURRENT_TIMESTAMP`
 	getSwDocSQL       = "SELECT name, description, sections, updated FROM swdocs WHERE name=?"
 	getRecentSwDocSQL = "SELECT name, description, created FROM swdocs ORDER BY ID DESC LIMIT 15"
 	searchSwDocSQL    = "SELECT name, updated FROM swdocs WHERE name like ?"
@@ -12,6 +26,24 @@ const (
 
 func CreateSwDoc(db *sql.DB, swdoc *SwDoc) error {
 	statement, err := db.Prepare(createSwDocSQL)
+	if err != nil {
+		return err
+	}
+
+	res, err := statement.Exec(swdoc.Name, swdoc.Description, swdoc.Sections)
+	if err != nil {
+		return err
+	}
+
+	// Update the Id in the structure.
+	lid, err := res.LastInsertId()
+	swdoc.Id = lid
+
+	return nil
+}
+
+func CreateOrUpdateSwDoc(db *sql.DB, swdoc *SwDoc) error {
+	statement, err := db.Prepare(createOrUpdateSwDocSQL)
 	if err != nil {
 		return err
 	}

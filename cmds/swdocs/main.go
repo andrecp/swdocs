@@ -52,7 +52,7 @@ func main() {
 	nameDeleteCmd := deleteCmd.String("name", "", "The name of the SwDoc you want to delete")
 
 	applyCmd := flag.NewFlagSet("apply", flag.ExitOnError)
-	filePathApplyCmd := deleteCmd.String("file", "", "The file you want to apply")
+	filePathApplyCmd := applyCmd.String("file", "", "The JSON file you want to apply the changes from")
 
 	serveCmd := flag.NewFlagSet("serve", flag.ExitOnError)
 
@@ -131,6 +131,25 @@ func main() {
 			fmt.Println("--file is required to apply a file to SwDocs")
 			os.Exit(1)
 		}
+
+		jsonData, err := ioutil.ReadFile(*filePathApplyCmd)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		resp, err := http.Post(httpAddress+"/api/v1/swdocs/apply", "application/json", bytes.NewBuffer(jsonData))
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		log.Info(string(body))
+
 	case "serve":
 		serveCmd.Parse(os.Args[2:])
 		a := swdocs.App{}

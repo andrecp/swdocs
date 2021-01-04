@@ -1,0 +1,15 @@
+{
+    "name": "rabbitmq",
+    "description": "A broker for your messages! AMQP!",
+      "sections": [
+        {
+            "header": "Guides",
+            "links": [
+                {
+                    "url": "https://www.rabbitmq.com/getstarted.html",
+                    "description": "Official get started, great guide!"
+                }
+            ]
+        }
+      ]
+  }

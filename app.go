@@ -19,23 +19,14 @@ type App struct {
 	DB     *sql.DB
 }
 
-const (
-	dbSchema = `
-    CREATE TABLE IF NOT EXISTS swdocs (
-		id INTEGER PRIMARY KEY,
-		name TEXT UNIQUE,
-		created NOT NULL DEFAULT CURRENT_TIMESTAMP,
-		updated NOT NULL DEFAULT CURRENT_TIMESTAMP,
-		description TEXT,
-		sections TEXT)
-	`
-)
-
 func (a *App) initializeRoutes() {
+	// Web Pages
 	a.Router.HandleFunc("/", a.homeHandler).Methods("GET")
 	a.Router.HandleFunc("/search", a.searchHandler).Methods("GET")
 	a.Router.HandleFunc("/{swDocName}", a.swDocHandler).Methods("GET")
+	// REST API
 	a.Router.HandleFunc("/api/v1/swdocs", a.createSwDocHandler).Methods("POST")
+	a.Router.HandleFunc("/api/v1/swdocs/apply", a.applySwDocHandler).Methods("POST")
 	a.Router.HandleFunc("/api/v1/swdocs/{swDocName}", a.deleteSwDocHandler).Methods("DELETE")
 }
 

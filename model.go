@@ -15,6 +15,10 @@ type SwDoc struct {
 	Sections    SectionSlice `json:"sections,omitempty"`
 }
 
+type SwDocsSlice struct {
+	SwDocs *[]SwDoc
+}
+
 type TimeStamp time.Time
 
 type SectionSlice []Section
