@@ -71,10 +71,16 @@ func main() {
 			fmt.Println("--name is required when creating a new swdoc")
 			os.Exit(1)
 		}
+
+		sections := *sectionsCreateCmd
+		if len(sections) == 0 {
+			sections = "[]"
+		}
+
 		requestBody, err := json.Marshal(CreateRequest{
 			Name:        *nameCreateCmd,
 			Description: *descriptionCreateCmd,
-			Sections:    json.RawMessage(*sectionsCreateCmd),
+			Sections:    json.RawMessage(sections),
 		})
 		if err != nil {
 			log.Fatal(err.Error())
