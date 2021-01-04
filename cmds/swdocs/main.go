@@ -37,7 +37,7 @@ func init() {
 	// Only log the warning severity or above if unset.
 	loglevel, err := log.ParseLevel(os.Getenv("SWDOCS_LOGLEVEL"))
 	if err != nil {
-		log.SetLevel(log.WarnLevel)
+		log.SetLevel(log.DebugLevel)
 	}
 	log.SetLevel(loglevel)
 }
