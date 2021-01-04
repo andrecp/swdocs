@@ -1,4 +1,6 @@
 SHELL := /bin/bash
+include .dev.env
+export
 
 .phony: build, run
 
@@ -6,7 +8,7 @@ build:
 	cd cmds/swdocs && go build .;
 
 run: build
-	source .dev.env && cd cmds/swdocs && ./swdocs serve;
+	cd cmds/swdocs && ./swdocs serve;
 
 test:
 	go test -v ./...

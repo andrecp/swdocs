@@ -18,8 +18,8 @@ export SWDOCS_LOGLEVEL=debug
 # Create a new swdoc page about the zeromq software package.
 > swdocs create --name zeromq --description "ZeroMQ is a high-performance asynchronous messaging library, aimed at use in distributed or concurrent applications. It provides a message queue, but unlike message-oriented middleware, a ZeroMQ system can run without a dedicated message broker. "
 
-# Edit some metadata
-> swdocs edit zeromq
+# Apply is an appy that either creates or updates an entry from a JSON file.
+> swdocs apply --file tests/rabbitmq.json
 ```
 
 ### Working with sqlite
