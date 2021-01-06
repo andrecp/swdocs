@@ -34,7 +34,7 @@ func init() {
 	// Can be any io.Writer, see below for File example
 	log.SetOutput(os.Stdout)
 
-	// Only log the warning severity or above if unset.
+	// Display Debug Level severity log or above if unset.
 	loglevel, err := log.ParseLevel(os.Getenv("SWDOCS_LOGLEVEL"))
 	if err != nil {
 		log.SetLevel(log.DebugLevel)
