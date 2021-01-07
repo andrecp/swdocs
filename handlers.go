@@ -12,8 +12,8 @@ import (
 )
 
 type createdAndUpdatedHomePage struct {
-	LastCreated *SwDocsSlice
-	LastUpdated *SwDocsSlice
+	LastCreated *swDocsSlice
+	LastUpdated *swDocsSlice
 }
 
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
@@ -44,17 +44,17 @@ func (a *App) homeHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	createDocs, err := GetMostRecentCreatedSwDocs(a.DB)
+	createDocs, err := getMostRecentCreatedSwDocs(a.DB)
 	if err != nil {
 		panic(err)
 	}
-	updatedDocs, err := GetMostRecentUpdatedSwDocs(a.DB)
+	updatedDocs, err := getMostRecentUpdatedSwDocs(a.DB)
 	if err != nil {
 		panic(err)
 	}
 
-	c := SwDocsSlice{&createDocs}
-	u := SwDocsSlice{&updatedDocs}
+	c := swDocsSlice{&createDocs}
+	u := swDocsSlice{&updatedDocs}
 
 	h := createdAndUpdatedHomePage{
 		LastCreated: &c,
@@ -79,7 +79,7 @@ func (a *App) swDocHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	doc, err := GetSwDocByName(a.DB, swdocName)
+	doc, err := getSwDocByName(a.DB, swdocName)
 	if err != nil {
 		panic(err)
 	}
@@ -108,12 +108,12 @@ func (a *App) searchHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	docs, err := SearchSwDocsByName(a.DB, searchParams)
+	docs, err := searchSwDocsByName(a.DB, searchParams)
 	if err != nil {
 		panic(err)
 	}
 
-	h := SwDocsSlice{&docs}
+	h := swDocsSlice{&docs}
 	err = t.Execute(w, h)
 	if err != nil {
 		panic(err)
@@ -130,7 +130,7 @@ func (a *App) deleteSwDocHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	swdocName := params["swDocName"]
 
-	if err := DeleteSwDoc(a.DB, swdocName); err != nil {
+	if err := deleteSwDoc(a.DB, swdocName); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -143,7 +143,7 @@ func (a *App) applySwDocHandler(w http.ResponseWriter, r *http.Request) {
 	a.Mutex.Lock()
 	defer a.Mutex.Unlock()
 
-	var s SwDoc
+	var s swDoc
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&s); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload.\n"+err.Error())
@@ -152,7 +152,7 @@ func (a *App) applySwDocHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	if err := CreateOrUpdateSwDoc(a.DB, &s); err != nil {
+	if err := createOrUpdateSwDoc(a.DB, &s); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

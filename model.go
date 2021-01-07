@@ -6,43 +6,43 @@ import (
 	"time"
 )
 
-type SwDoc struct {
-	Id          int64        `json:"id"`
+type swDoc struct {
+	ID          int64        `json:"id"`
 	Name        string       `json:"name"`
 	User        string       `json:"user"`
-	Created     TimeStamp    `json:"created,omitempty"`
-	Updated     TimeStamp    `json:"updated,omitempty"`
+	Created     timeStamp    `json:"created,omitempty"`
+	Updated     timeStamp    `json:"updated,omitempty"`
 	Description string       `json:"description"`
-	Sections    SectionSlice `json:"sections,omitempty"`
+	Sections    sectionSlice `json:"sections,omitempty"`
 }
 
-type SwDocsSlice struct {
-	SwDocs *[]SwDoc
+type swDocsSlice struct {
+	SwDocs *[]swDoc
 }
 
-type TimeStamp time.Time
+type timeStamp time.Time
 
-type SectionSlice []Section
+type sectionSlice []section
 
-type Section struct {
+type section struct {
 	Header      string    `json:"header"`
 	Description string    `json:"description"`
-	Links       LinkSlice `json:"links"`
+	Links       linkSlice `json:"links"`
 }
 
-type LinkSlice []Link
+type linkSlice []link
 
-type Link struct {
+type link struct {
 	URL         string `json:"url"`
 	Description string `json:"description"`
 }
 
 // Value - Implementation of valuer for database/sql
-func (s SectionSlice) Value() (driver.Value, error) {
+func (s sectionSlice) Value() (driver.Value, error) {
 	return json.Marshal(s)
 }
 
-func (s *SectionSlice) Scan(v interface{}) error {
+func (s *sectionSlice) Scan(v interface{}) error {
 	var data []byte
 	if b, ok := v.([]byte); ok {
 		data = b
@@ -52,16 +52,16 @@ func (s *SectionSlice) Scan(v interface{}) error {
 	return json.Unmarshal(data, s)
 }
 
-func (t *TimeStamp) Scan(v interface{}) error {
+func (t *timeStamp) Scan(v interface{}) error {
 	// Should be more strictly to check this type.
 	vt, err := time.Parse("2006-01-02 15:04:05", v.(string))
 	if err != nil {
 		return err
 	}
-	*t = TimeStamp(vt)
+	*t = timeStamp(vt)
 	return nil
 }
 
-func (t TimeStamp) ToString() string {
+func (t timeStamp) ToString() string {
 	return time.Time(t).Format("2006-01-02")
 }

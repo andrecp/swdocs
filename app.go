@@ -10,11 +10,14 @@ import (
 	"net/http"
 	"os"
 
+	// We're using sqlite implementation of the sql interface.
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/gorilla/mux"
 )
 
+// App is the struct representing our web application containing
+// the database connection, the router and a mutex.
 type App struct {
 	Router *mux.Router
 	DB     *sql.DB
@@ -63,6 +66,7 @@ func (a *App) populateDb() error {
 	return nil
 }
 
+// Initialize the web app database and routes.
 func (a *App) Initialize(dbpath string) {
 	var err error
 
@@ -91,6 +95,7 @@ func (a *App) Initialize(dbpath string) {
 	a.initializeRoutes()
 }
 
+// Run the web application.
 func (a *App) Run(addr string) {
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", addr), a.Router))
 }
