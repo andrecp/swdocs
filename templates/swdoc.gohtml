@@ -20,6 +20,7 @@
         }
         .subtitle {
             font-size: 12px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -37,6 +38,7 @@
     </ul>
     {{end}}
     <p class="subtitle">Last updated on {{with .Updated}}{{.ToString}}{{end}} UTC by {{.User}}</p>
+    <a class="subtitle" href="/">Back to home</a>
 </body>
 
 </html>

@@ -19,10 +19,11 @@ const (
 									description=excluded.description,
 									user=excluded.user,
 									updated=CURRENT_TIMESTAMP`
-	getSwDocSQL       = "SELECT name, description, sections, user, updated FROM swdocs WHERE name=?"
-	getRecentSwDocSQL = "SELECT name, description, user, created, updated FROM swdocs ORDER BY ID DESC LIMIT 15"
-	searchSwDocSQL    = "SELECT name, user, updated FROM swdocs WHERE name like ?"
-	deleteSwDocSQL    = "DELETE FROM swdocs WHERE name=?"
+	getSwDocSQL              = "SELECT name, description, sections, user, updated FROM swdocs WHERE name=?"
+	getRecentCreatedSwDocSQL = "SELECT name, description, user, created, updated FROM swdocs ORDER BY ID DESC LIMIT 15"
+	getRecentUpdatedSwDocSQL = "SELECT name, description, user, created, updated FROM swdocs ORDER BY updated DESC LIMIT 15"
+	searchSwDocSQL           = "SELECT name, user, updated FROM swdocs WHERE name like ?"
+	deleteSwDocSQL           = "DELETE FROM swdocs WHERE name=?"
 )
 
 func CreateOrUpdateSwDoc(db *sql.DB, swdoc *SwDoc) error {
@@ -43,8 +44,28 @@ func CreateOrUpdateSwDoc(db *sql.DB, swdoc *SwDoc) error {
 	return nil
 }
 
-func GetMostRecentSwDocs(db *sql.DB) ([]SwDoc, error) {
-	rows, err := db.Query(getRecentSwDocSQL)
+func GetMostRecentCreatedSwDocs(db *sql.DB) ([]SwDoc, error) {
+	rows, err := db.Query(getRecentCreatedSwDocSQL)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var docs []SwDoc
+
+	for rows.Next() {
+		var s SwDoc
+		if err := rows.Scan(&s.Name, &s.Description, &s.User, &s.Created, &s.Updated); err != nil {
+			return nil, err
+		}
+		docs = append(docs, s)
+	}
+
+	return docs, nil
+}
+
+func GetMostRecentUpdatedSwDocs(db *sql.DB) ([]SwDoc, error) {
+	rows, err := db.Query(getRecentUpdatedSwDocSQL)
 	if err != nil {
 		return nil, err
 	}

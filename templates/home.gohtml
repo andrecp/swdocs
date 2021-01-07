@@ -29,7 +29,7 @@
 
 <body>
 
-{{ $length := len .SwDocs }} {{ if not (eq $length 0) }}
+{{ $length := len .LastCreated.SwDocs }} {{ if not (eq $length 0) }}
 <section>
     <h2>Search for a SwDoc</h2>
     <form action="/search">
@@ -42,7 +42,7 @@
 
 </br>
 
-{{ $length := len .SwDocs }} {{ if not (eq $length 0) }}
+{{ $length := len .LastCreated.SwDocs }} {{ if not (eq $length 0) }}
     <h2>SwDocs Activity</h2>
 {{else}}
     <h2>No SwDocs found!</h2>
@@ -51,25 +51,25 @@
 
 <div class="grid-container">
     <section class="grid-child">
-        {{ $length := len .SwDocs }} {{ if not (eq $length 0) }}
-        <h3>Last created</h3>
+        {{ $length := len .LastUpdated.SwDocs }} {{ if not (eq $length 0) }}
+        <h3>Last updated</h3>
         {{end}}
 
-        {{range .SwDocs}}
+        {{range .LastUpdated.SwDocs}}
         <ul>
-            <li><a href="/{{.Name}}">{{.Name}} was created on {{with .Created}}{{.ToString}}{{end}}</a></li>
+            <li><a href="/{{.Name}}">{{.Name}} was updated on {{with .Updated}}{{.ToString}}{{end}} by {{.User}}</a></li>
         </ul>
         {{end}}
     </section>
 
     <section class="grid-child">
-        {{ $length := len .SwDocs }} {{ if not (eq $length 0) }}
-        <h3>Last updated</h3>
+        {{ $length := len .LastCreated.SwDocs }} {{ if not (eq $length 0) }}
+        <h3>Last created</h3>
         {{end}}
 
-        {{range .SwDocs}}
+        {{range .LastCreated.SwDocs}}
         <ul>
-            <li><a href="/{{.Name}}">{{.Name}} was updated on {{with .Updated}}{{.ToString}}{{end}} by {{.User}}</a></li>
+            <li><a href="/{{.Name}}">{{.Name}} was created on {{with .Created}}{{.ToString}}{{end}}</a></li>
         </ul>
         {{end}}
     </section>

@@ -11,6 +11,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type createdAndUpdatedHomePage struct {
+	LastCreated *SwDocsSlice
+	LastUpdated *SwDocsSlice
+}
+
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.Marshal(payload)
 
@@ -39,12 +44,22 @@ func (a *App) homeHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	docs, err := GetMostRecentSwDocs(a.DB)
+	createDocs, err := GetMostRecentCreatedSwDocs(a.DB)
+	if err != nil {
+		panic(err)
+	}
+	updatedDocs, err := GetMostRecentUpdatedSwDocs(a.DB)
 	if err != nil {
 		panic(err)
 	}
 
-	h := SwDocsSlice{&docs}
+	c := SwDocsSlice{&createDocs}
+	u := SwDocsSlice{&updatedDocs}
+
+	h := createdAndUpdatedHomePage{
+		LastCreated: &c,
+		LastUpdated: &u,
+	}
 	err = t.Execute(w, h)
 	if err != nil {
 		panic(err)
