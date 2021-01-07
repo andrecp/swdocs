@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/user"
 
 	"github.com/andrecp/swdocs"
 
@@ -19,9 +20,10 @@ const (
 )
 
 type (
-	CreateRequest struct {
+	applyRequest struct {
 		Name        string          `json:"name"`
 		Description string          `json:"description"`
+		User        string          `json:"user"`
 		Sections    json.RawMessage `json:"sections"`
 	}
 )
@@ -43,49 +45,56 @@ func init() {
 }
 
 func main() {
-	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
-	nameCreateCmd := createCmd.String("name", "", "The name of the SwDoc you're creating! Goes into the URL -> /:name")
-	descriptionCreateCmd := createCmd.String("description", "", "A description of the SwDoc is.")
-	sectionsCreateCmd := createCmd.String("sections", "", "JSON with the value, for example, '[{\"header\":\"Dashboards\",\"links\":[{\"url\":\"http://kibana.domain.com:5601\",\"description\":\"Kibana boards\"}]}]'")
-
-	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
-	nameDeleteCmd := deleteCmd.String("name", "", "The name of the SwDoc you want to delete")
 
 	applyCmd := flag.NewFlagSet("apply", flag.ExitOnError)
 	filePathApplyCmd := applyCmd.String("file", "", "The JSON file you want to apply the changes from")
 
+	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
+	nameDeleteCmd := deleteCmd.String("name", "", "The name of the SwDoc you want to delete")
+
 	serveCmd := flag.NewFlagSet("serve", flag.ExitOnError)
 
 	if len(os.Args) < 2 {
-		fmt.Println("Missing subcommand, use one of: `create`, `apply`, `delete`, or `serve`.")
+		fmt.Println("Missing subcommand, use one of: `apply`, `delete` or `serve`.")
 		os.Exit(1)
 	}
 	switch os.Args[1] {
-	case "create":
-		err := createCmd.Parse(os.Args[2:])
+	case "apply":
+		applyCmd.Parse(os.Args[2:])
+		err := applyCmd.Parse(os.Args[2:])
 		if err != nil {
 			log.Fatal(err.Error())
 		}
 
-		if *nameCreateCmd == "" {
-			fmt.Println("--name is required when creating a new swdoc")
+		if *filePathApplyCmd == "" {
+			fmt.Println("--file is required to apply a file to SwDocs")
 			os.Exit(1)
 		}
 
-		sections := *sectionsCreateCmd
-		if len(sections) == 0 {
-			sections = "[]"
-		}
-
-		requestBody, err := json.Marshal(CreateRequest{
-			Name:        *nameCreateCmd,
-			Description: *descriptionCreateCmd,
-			Sections:    json.RawMessage(sections),
-		})
+		jsonText, err := ioutil.ReadFile(*filePathApplyCmd)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		resp, err := http.Post(httpAddress+"/api/v1/swdocs", "application/json", bytes.NewBuffer(requestBody))
+
+		user, err := user.Current()
+		if err != nil {
+			panic(err)
+		}
+
+		r := applyRequest{}
+		err = json.Unmarshal(jsonText, &r)
+		if err != nil {
+			panic(err)
+		}
+
+		r.User = user.Username
+
+		requestBody, err := json.Marshal(r)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		resp, err := http.Post(httpAddress+"/api/v1/swdocs/apply", "application/json", bytes.NewBuffer(requestBody))
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -95,6 +104,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err.Error())
 		}
+
 		log.Info(string(body))
 	case "delete":
 		err := deleteCmd.Parse(os.Args[2:])
@@ -126,36 +136,6 @@ func main() {
 		}
 		log.Info(string(body))
 
-	case "apply":
-		applyCmd.Parse(os.Args[2:])
-		err := applyCmd.Parse(os.Args[2:])
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-
-		if *filePathApplyCmd == "" {
-			fmt.Println("--file is required to apply a file to SwDocs")
-			os.Exit(1)
-		}
-
-		jsonData, err := ioutil.ReadFile(*filePathApplyCmd)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-
-		resp, err := http.Post(httpAddress+"/api/v1/swdocs/apply", "application/json", bytes.NewBuffer(jsonData))
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-
-		log.Info(string(body))
-
 	case "serve":
 		serveCmd.Parse(os.Args[2:])
 		a := swdocs.App{}
@@ -164,7 +144,7 @@ func main() {
 		a.Run(os.Getenv("SWDOCS_PORT"))
 
 	default:
-		fmt.Println("Must use one of the subcommands `create`, `apply`, `delete`, `link` or `serve`.")
+		fmt.Println("Must use one of the subcommands `apply`, `delete` or `serve`.")
 		os.Exit(1)
 	}
 

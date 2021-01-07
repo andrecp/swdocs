@@ -107,28 +107,6 @@ func (a *App) searchHandler(w http.ResponseWriter, r *http.Request) {
 
 // REST API //
 
-func (a *App) createSwDocHandler(w http.ResponseWriter, r *http.Request) {
-	// Sqlite only allows one writer at a time, handlers that change the state must execute once at a time.
-	a.Mutex.Lock()
-	defer a.Mutex.Unlock()
-
-	var s SwDoc
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&s); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload.\n"+err.Error())
-		return
-	}
-
-	defer r.Body.Close()
-
-	if err := CreateSwDoc(a.DB, &s); err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	respondWithJSON(w, http.StatusCreated, s)
-}
-
 func (a *App) deleteSwDocHandler(w http.ResponseWriter, r *http.Request) {
 	// Sqlite only allows one writer at a time, handlers that change the state must execute once at a time.
 	a.Mutex.Lock()

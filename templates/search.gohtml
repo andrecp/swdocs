@@ -8,7 +8,7 @@
     <style type="text/css">
         body {
             margin:40px auto;
-            max-width:650px;
+            max-width:850px;
             line-height:1.4;
             font-size:18px;
             color:#444;
@@ -34,7 +34,7 @@
 
 {{range .SwDocs}}
 <ul>
-    <li><a href="/{{.Name}}">{{.Name}} was last updated on {{with .Updated}}{{.ToString}}{{end}} (UTC)</a></li>
+    <li><a href="/{{.Name}}">{{.Name}} was last updated on {{with .Updated}}{{.ToString}} UTC by {{end}}{{.User}}</a></li>
 </ul>
 {{end}}
 </section>

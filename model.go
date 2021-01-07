@@ -9,6 +9,7 @@ import (
 type SwDoc struct {
 	Id          int64        `json:"id"`
 	Name        string       `json:"name"`
+	User        string       `json:"user"`
 	Created     TimeStamp    `json:"created,omitempty"`
 	Updated     TimeStamp    `json:"updated,omitempty"`
 	Description string       `json:"description"`
@@ -62,5 +63,5 @@ func (t *TimeStamp) Scan(v interface{}) error {
 }
 
 func (t TimeStamp) ToString() string {
-	return time.Time(t).Format("2006-01-02 15:04:05")
+	return time.Time(t).Format("2006-01-02")
 }

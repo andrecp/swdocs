@@ -27,7 +27,6 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/search", a.searchHandler).Methods("GET")
 	a.Router.HandleFunc("/{swDocName}", a.swDocHandler).Methods("GET")
 	// REST API
-	a.Router.HandleFunc("/api/v1/swdocs", a.createSwDocHandler).Methods("POST")
 	a.Router.HandleFunc("/api/v1/swdocs/apply", a.applySwDocHandler).Methods("POST")
 	a.Router.HandleFunc("/api/v1/swdocs/{swDocName}", a.deleteSwDocHandler).Methods("DELETE")
 }

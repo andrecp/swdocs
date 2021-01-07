@@ -7,40 +7,23 @@ const (
     CREATE TABLE IF NOT EXISTS swdocs (
 		id INTEGER PRIMARY KEY,
 		name TEXT UNIQUE,
+		user TEXT,
 		created NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		updated NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		description TEXT,
 		sections TEXT)
 	`
-	createSwDocSQL         = "INSERT INTO swdocs (name, description, sections) VALUES (?, ?, ?)"
-	createOrUpdateSwDocSQL = `INSERT INTO swdocs (name, description, sections) VALUES (?, ?, ?)
+	createOrUpdateSwDocSQL = `INSERT INTO swdocs (name, description, user, sections) VALUES (?, ?, ?, ?)
 								ON CONFLICT (name) DO UPDATE SET
 									sections=excluded.sections,
 									description=excluded.description,
+									user=excluded.user,
 									updated=CURRENT_TIMESTAMP`
-	getSwDocSQL       = "SELECT name, description, sections, updated FROM swdocs WHERE name=?"
-	getRecentSwDocSQL = "SELECT name, description, created, updated FROM swdocs ORDER BY ID DESC LIMIT 15"
-	searchSwDocSQL    = "SELECT name, updated FROM swdocs WHERE name like ?"
+	getSwDocSQL       = "SELECT name, description, sections, user, updated FROM swdocs WHERE name=?"
+	getRecentSwDocSQL = "SELECT name, description, user, created, updated FROM swdocs ORDER BY ID DESC LIMIT 15"
+	searchSwDocSQL    = "SELECT name, user, updated FROM swdocs WHERE name like ?"
 	deleteSwDocSQL    = "DELETE FROM swdocs WHERE name=?"
 )
-
-func CreateSwDoc(db *sql.DB, swdoc *SwDoc) error {
-	statement, err := db.Prepare(createSwDocSQL)
-	if err != nil {
-		return err
-	}
-
-	res, err := statement.Exec(swdoc.Name, swdoc.Description, swdoc.Sections)
-	if err != nil {
-		return err
-	}
-
-	// Update the Id in the structure.
-	lid, err := res.LastInsertId()
-	swdoc.Id = lid
-
-	return nil
-}
 
 func CreateOrUpdateSwDoc(db *sql.DB, swdoc *SwDoc) error {
 	statement, err := db.Prepare(createOrUpdateSwDocSQL)
@@ -48,7 +31,7 @@ func CreateOrUpdateSwDoc(db *sql.DB, swdoc *SwDoc) error {
 		return err
 	}
 
-	res, err := statement.Exec(swdoc.Name, swdoc.Description, swdoc.Sections)
+	res, err := statement.Exec(swdoc.Name, swdoc.Description, swdoc.User, swdoc.Sections)
 	if err != nil {
 		return err
 	}
@@ -71,7 +54,7 @@ func GetMostRecentSwDocs(db *sql.DB) ([]SwDoc, error) {
 
 	for rows.Next() {
 		var s SwDoc
-		if err := rows.Scan(&s.Name, &s.Description, &s.Created, &s.Updated); err != nil {
+		if err := rows.Scan(&s.Name, &s.Description, &s.User, &s.Created, &s.Updated); err != nil {
 			return nil, err
 		}
 		docs = append(docs, s)
@@ -94,7 +77,7 @@ func GetSwDocByName(db *sql.DB, name string) (SwDoc, error) {
 
 	defer rows.Close()
 	for rows.Next() {
-		if err := rows.Scan(&s.Name, &s.Description, &s.Sections, &s.Updated); err != nil {
+		if err := rows.Scan(&s.Name, &s.Description, &s.Sections, &s.User, &s.Updated); err != nil {
 			return s, err
 		}
 	}
@@ -120,7 +103,7 @@ func SearchSwDocsByName(db *sql.DB, name string) ([]SwDoc, error) {
 
 	for rows.Next() {
 		var s SwDoc
-		if err := rows.Scan(&s.Name, &s.Updated); err != nil {
+		if err := rows.Scan(&s.Name, &s.User, &s.Updated); err != nil {
 			return nil, err
 		}
 		docs = append(docs, s)
