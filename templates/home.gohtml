@@ -18,16 +18,20 @@
         h1, h2, h3 {
             line-height:1.2
         }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+            margin-top: -20px;
+        }
     </style>
 </head>
 
 <body>
 
-<h1>Welcome to SwDocs!</h1>
-
 {{ $length := len .SwDocs }} {{ if not (eq $length 0) }}
 <section>
-    <h3>Search for a SwDoc</h3>
+    <h2>Search for a SwDoc</h2>
     <form action="/search">
         <label for="swdocsearch">Name (use % for wildcard)</label>
         <input type="search" id="swdocsearch" name="swdocsearch">
@@ -38,19 +42,38 @@
 
 </br>
 
-<section>
-    {{ $length := len .SwDocs }} {{ if not (eq $length 0) }}
-    <h3>Latest SwDocs created</h3>
-    {{else}}
-    <h3>No SwDocs found!</h3>
-    {{end}}
+{{ $length := len .SwDocs }} {{ if not (eq $length 0) }}
+    <h2>SwDocs Activity</h2>
+{{else}}
+    <h2>No SwDocs found!</h2>
+{{end}}
 
-    {{range .SwDocs}}
-    <ul>
-        <li><a href="/{{.Name}}">{{.Name}} was created on {{with .Created}}{{.ToString}}{{end}} (UTC)</a></li>
-    </ul>
-    {{end}}
-</section>
+
+<div class="grid-container">
+    <section class="grid-child">
+        {{ $length := len .SwDocs }} {{ if not (eq $length 0) }}
+        <h3>Last created</h3>
+        {{end}}
+
+        {{range .SwDocs}}
+        <ul>
+            <li><a href="/{{.Name}}">{{.Name}} was created on {{with .Created}}{{.ToString}}{{end}} (UTC)</a></li>
+        </ul>
+        {{end}}
+    </section>
+
+    <section class="grid-child">
+        {{ $length := len .SwDocs }} {{ if not (eq $length 0) }}
+        <h3>Last updated</h3>
+        {{end}}
+
+        {{range .SwDocs}}
+        <ul>
+            <li><a href="/{{.Name}}">{{.Name}} was updated on {{with .Updated}}{{.ToString}}{{end}} (UTC)</a></li>
+        </ul>
+        {{end}}
+    </section>
+</div>
 
 </body>
 

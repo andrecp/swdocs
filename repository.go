@@ -19,7 +19,7 @@ const (
 									description=excluded.description,
 									updated=CURRENT_TIMESTAMP`
 	getSwDocSQL       = "SELECT name, description, sections, updated FROM swdocs WHERE name=?"
-	getRecentSwDocSQL = "SELECT name, description, created FROM swdocs ORDER BY ID DESC LIMIT 15"
+	getRecentSwDocSQL = "SELECT name, description, created, updated FROM swdocs ORDER BY ID DESC LIMIT 15"
 	searchSwDocSQL    = "SELECT name, updated FROM swdocs WHERE name like ?"
 	deleteSwDocSQL    = "DELETE FROM swdocs WHERE name=?"
 )
@@ -71,7 +71,7 @@ func GetMostRecentSwDocs(db *sql.DB) ([]SwDoc, error) {
 
 	for rows.Next() {
 		var s SwDoc
-		if err := rows.Scan(&s.Name, &s.Description, &s.Created); err != nil {
+		if err := rows.Scan(&s.Name, &s.Description, &s.Created, &s.Updated); err != nil {
 			return nil, err
 		}
 		docs = append(docs, s)
