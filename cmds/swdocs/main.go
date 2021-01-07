@@ -47,6 +47,7 @@ func init() {
 func main() {
 
 	applyCmd := flag.NewFlagSet("apply", flag.ExitOnError)
+	userApplyCmd := applyCmd.String("user", "", "Override the user, useful for CI")
 	filePathApplyCmd := applyCmd.String("file", "", "The JSON file you want to apply the changes from")
 
 	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
@@ -71,14 +72,20 @@ func main() {
 			os.Exit(1)
 		}
 
+		var username string
+		if *userApplyCmd == "" {
+			user, err := user.Current()
+			if err != nil {
+				panic(err)
+			}
+			username = user.Username
+		} else {
+			username = *userApplyCmd
+		}
+
 		jsonText, err := ioutil.ReadFile(*filePathApplyCmd)
 		if err != nil {
 			log.Fatal(err.Error())
-		}
-
-		user, err := user.Current()
-		if err != nil {
-			panic(err)
 		}
 
 		r := applyRequest{}
@@ -87,7 +94,7 @@ func main() {
 			panic(err)
 		}
 
-		r.User = user.Username
+		r.User = username
 
 		requestBody, err := json.Marshal(r)
 		if err != nil {
