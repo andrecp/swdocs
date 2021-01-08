@@ -29,19 +29,24 @@ type (
 )
 
 func init() {
-	// Log as JSON instead of the default ASCII formatter.
+	// Log as JSON instead of the default ASCII formatter
 	log.SetFormatter(&log.JSONFormatter{})
 
 	// Output to stdout instead of the default stderr
-	// Can be any io.Writer, see below for File example
 	log.SetOutput(os.Stdout)
 
-	// Display Debug Level severity log or above if unset.
-	loglevel, err := log.ParseLevel(os.Getenv("SWDOCS_LOGLEVEL"))
-	if err != nil {
-		log.SetLevel(log.DebugLevel)
+	// Display Warn level log if unset
+	loglevel := os.Getenv("SWDOCS_LOGLEVEL")
+	if loglevel == "" {
+		log.SetLevel(log.WarnLevel)
+	} else {
+		loglevel, err := log.ParseLevel(loglevel)
+		if err != nil {
+			panic(err)
+		}
+		log.SetLevel(loglevel)
 	}
-	log.SetLevel(loglevel)
+
 }
 
 func main() {
