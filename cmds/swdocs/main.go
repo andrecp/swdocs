@@ -76,7 +76,7 @@ func main() {
 		if *userApplyCmd == "" {
 			user, err := user.Current()
 			if err != nil {
-				panic(err)
+				log.Fatal(err.Error())
 			}
 			username = user.Username
 		} else {
@@ -91,7 +91,7 @@ func main() {
 		r := applyRequest{}
 		err = json.Unmarshal(jsonText, &r)
 		if err != nil {
-			panic(err)
+			log.Fatal(err.Error())
 		}
 
 		r.User = username

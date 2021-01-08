@@ -24,11 +24,18 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(response)
 }
 
-func respondWithError(w http.ResponseWriter, code int, message string) {
+func respondWithJSONError(w http.ResponseWriter, code int, message string) {
 	log.WithFields(log.Fields{
 		"code": code,
 	}).Error(message)
 	respondWithJSON(w, code, map[string]string{"error": message})
+}
+
+func respondWithError(w http.ResponseWriter, code int, message string) {
+	log.WithFields(log.Fields{
+		"code": code,
+	}).Error(message)
+	w.WriteHeader(code)
 }
 
 // Templated HTML pages //
@@ -36,21 +43,25 @@ func respondWithError(w http.ResponseWriter, code int, message string) {
 func (a *App) homeHandler(w http.ResponseWriter, r *http.Request) {
 	message, err := ioutil.ReadFile("../../templates/home.gohtml")
 	if err != nil {
-		panic(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	t, err := template.New("HomePage").Parse(string(message))
 	if err != nil {
-		panic(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	createDocs, err := getMostRecentCreatedSwDocs(a.DB)
 	if err != nil {
-		panic(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 	updatedDocs, err := getMostRecentUpdatedSwDocs(a.DB)
 	if err != nil {
-		panic(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	c := swDocsSlice{&createDocs}
@@ -62,7 +73,7 @@ func (a *App) homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err = t.Execute(w, h)
 	if err != nil {
-		panic(err)
+		log.Error(err.Error())
 	}
 }
 
@@ -71,17 +82,20 @@ func (a *App) swDocHandler(w http.ResponseWriter, r *http.Request) {
 	swdocName := params["swDocName"]
 	message, err := ioutil.ReadFile("../../templates/swdoc.gohtml")
 	if err != nil {
-		panic(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	t, err := template.New("SwDoc").Parse(string(message))
 	if err != nil {
-		panic(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	doc, err := getSwDocByName(a.DB, swdocName)
 	if err != nil {
-		panic(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	if doc.Name == "" {
@@ -92,7 +106,7 @@ func (a *App) swDocHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = t.Execute(w, doc)
 	if err != nil {
-		panic(err)
+		log.Error(err.Error())
 	}
 }
 
@@ -100,23 +114,26 @@ func (a *App) searchHandler(w http.ResponseWriter, r *http.Request) {
 	searchParams := r.URL.Query().Get("swdocsearch")
 	message, err := ioutil.ReadFile("../../templates/search.gohtml")
 	if err != nil {
-		panic(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	t, err := template.New("Search").Parse(string(message))
 	if err != nil {
-		panic(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	docs, err := searchSwDocsByName(a.DB, searchParams)
 	if err != nil {
-		panic(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	h := swDocsSlice{&docs}
 	err = t.Execute(w, h)
 	if err != nil {
-		panic(err)
+		log.Error(err.Error())
 	}
 }
 
@@ -131,7 +148,7 @@ func (a *App) deleteSwDocHandler(w http.ResponseWriter, r *http.Request) {
 	swdocName := params["swDocName"]
 
 	if err := deleteSwDoc(a.DB, swdocName); err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
+		respondWithJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -146,14 +163,14 @@ func (a *App) applySwDocHandler(w http.ResponseWriter, r *http.Request) {
 	var s swDoc
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&s); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload.\n"+err.Error())
+		respondWithJSONError(w, http.StatusBadRequest, "Invalid request payload.\n"+err.Error())
 		return
 	}
 
 	defer r.Body.Close()
 
 	if err := createOrUpdateSwDoc(a.DB, &s); err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
+		respondWithJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
