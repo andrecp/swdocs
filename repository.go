@@ -11,7 +11,6 @@ const (
 		created NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		updated NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		description TEXT,
-		related TEXT,
 		sections TEXT)
 	`
 	createOrUpdateSwDocSQL = `INSERT INTO swdocs (name, description, user, sections) VALUES (?, ?, ?, ?)

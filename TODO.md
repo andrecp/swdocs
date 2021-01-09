@@ -1,5 +1,4 @@
 # Must Have
-* Have a list of "related" swdocs that is rendered if exists
 
 # Should have
 * Logging in requests
