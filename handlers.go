@@ -139,6 +139,34 @@ func (a *App) searchHandler(w http.ResponseWriter, r *http.Request) {
 
 // REST API //
 
+func (a *App) getSwDocsHandler(w http.ResponseWriter, r *http.Request) {
+	queryFilter := r.URL.Query().Get("filter")
+	docs, err := searchSwDocsByName(a.DB, queryFilter)
+	if err != nil {
+		respondWithJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondWithJSON(w, http.StatusOK, docs)
+}
+
+func (a *App) getSwDocHandler(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	swdocName := params["swDocName"]
+
+	doc, err := getSwDocByName(a.DB, swdocName)
+	if err != nil {
+		respondWithJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if doc.Name == "" {
+		respondWithJSONError(w, http.StatusNotFound, "SwDoc with this name does not exist")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, doc)
+}
+
 func (a *App) deleteSwDocHandler(w http.ResponseWriter, r *http.Request) {
 	// Sqlite only allows one writer at a time, handlers that change the state must execute once at a time.
 	a.Mutex.Lock()
@@ -160,7 +188,7 @@ func (a *App) applySwDocHandler(w http.ResponseWriter, r *http.Request) {
 	a.Mutex.Lock()
 	defer a.Mutex.Unlock()
 
-	var s swDoc
+	var s SwDoc
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&s); err != nil {
 		respondWithJSONError(w, http.StatusBadRequest, "Invalid request payload.\n"+err.Error())

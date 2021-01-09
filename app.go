@@ -30,8 +30,11 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/search", a.searchHandler).Methods("GET")
 	a.Router.HandleFunc("/{swDocName}", a.swDocHandler).Methods("GET")
 	// REST API
-	a.Router.HandleFunc("/api/v1/swdocs/apply", a.applySwDocHandler).Methods("POST")
+	a.Router.HandleFunc("/api/v1/swdocs/", a.getSwDocsHandler).Methods("GET")
+	a.Router.HandleFunc("/api/v1/swdocs/{swDocName}", a.getSwDocHandler).Methods("GET")
 	a.Router.HandleFunc("/api/v1/swdocs/{swDocName}", a.deleteSwDocHandler).Methods("DELETE")
+	a.Router.HandleFunc("/api/v1/swdocs/apply", a.applySwDocHandler).Methods("POST")
+
 }
 
 func (a *App) createDbIfNotExists(dbpath string) (bool, error) {

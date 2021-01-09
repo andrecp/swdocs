@@ -11,6 +11,7 @@ const (
 		created NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		updated NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		description TEXT,
+		related TEXT,
 		sections TEXT)
 	`
 	createOrUpdateSwDocSQL = `INSERT INTO swdocs (name, description, user, sections) VALUES (?, ?, ?, ?)
@@ -26,7 +27,7 @@ const (
 	deleteSwDocSQL           = "DELETE FROM swdocs WHERE name=?"
 )
 
-func createOrUpdateSwDoc(db *sql.DB, swdoc *swDoc) error {
+func createOrUpdateSwDoc(db *sql.DB, swdoc *SwDoc) error {
 	statement, err := db.Prepare(createOrUpdateSwDocSQL)
 	if err != nil {
 		return err
@@ -44,17 +45,17 @@ func createOrUpdateSwDoc(db *sql.DB, swdoc *swDoc) error {
 	return nil
 }
 
-func getMostRecentCreatedSwDocs(db *sql.DB) ([]swDoc, error) {
+func getMostRecentCreatedSwDocs(db *sql.DB) ([]SwDoc, error) {
 	rows, err := db.Query(getRecentCreatedSwDocSQL)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var docs []swDoc
+	var docs []SwDoc
 
 	for rows.Next() {
-		var s swDoc
+		var s SwDoc
 		if err := rows.Scan(&s.Name, &s.Description, &s.User, &s.Created, &s.Updated); err != nil {
 			return nil, err
 		}
@@ -64,17 +65,17 @@ func getMostRecentCreatedSwDocs(db *sql.DB) ([]swDoc, error) {
 	return docs, nil
 }
 
-func getMostRecentUpdatedSwDocs(db *sql.DB) ([]swDoc, error) {
+func getMostRecentUpdatedSwDocs(db *sql.DB) ([]SwDoc, error) {
 	rows, err := db.Query(getRecentUpdatedSwDocSQL)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var docs []swDoc
+	var docs []SwDoc
 
 	for rows.Next() {
-		var s swDoc
+		var s SwDoc
 		if err := rows.Scan(&s.Name, &s.Description, &s.User, &s.Created, &s.Updated); err != nil {
 			return nil, err
 		}
@@ -84,8 +85,8 @@ func getMostRecentUpdatedSwDocs(db *sql.DB) ([]swDoc, error) {
 	return docs, nil
 }
 
-func getSwDocByName(db *sql.DB, name string) (swDoc, error) {
-	var s swDoc
+func getSwDocByName(db *sql.DB, name string) (SwDoc, error) {
+	var s SwDoc
 	statement, err := db.Prepare(getSwDocSQL)
 	if err != nil {
 		return s, err
@@ -107,8 +108,8 @@ func getSwDocByName(db *sql.DB, name string) (swDoc, error) {
 
 }
 
-func searchSwDocsByName(db *sql.DB, name string) ([]swDoc, error) {
-	var docs []swDoc
+func searchSwDocsByName(db *sql.DB, name string) ([]SwDoc, error) {
+	var docs []SwDoc
 
 	statement, err := db.Prepare(searchSwDocSQL)
 	if err != nil {
@@ -123,7 +124,7 @@ func searchSwDocsByName(db *sql.DB, name string) ([]swDoc, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var s swDoc
+		var s SwDoc
 		if err := rows.Scan(&s.Name, &s.User, &s.Updated); err != nil {
 			return nil, err
 		}

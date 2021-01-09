@@ -3,21 +3,24 @@ package swdocs
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"strings"
 	"time"
 )
 
-type swDoc struct {
-	ID          int64        `json:"id"`
+// SwDoc is the struct that represents or docs
+type SwDoc struct {
+	ID          int64        `json:"id,omitempty"`
 	Name        string       `json:"name"`
-	User        string       `json:"user"`
-	Created     timeStamp    `json:"created,omitempty"`
-	Updated     timeStamp    `json:"updated,omitempty"`
+	User        string       `json:"user,omitempty"`
+	Created     *timeStamp   `json:"created,omitempty"`
+	Updated     *timeStamp   `json:"updated,omitempty"`
 	Description string       `json:"description"`
+	Related     string       `json:"related,omitempty"`
 	Sections    sectionSlice `json:"sections,omitempty"`
 }
 
 type swDocsSlice struct {
-	SwDocs *[]swDoc
+	SwDocs *[]SwDoc
 }
 
 type timeStamp time.Time
@@ -26,7 +29,7 @@ type sectionSlice []section
 
 type section struct {
 	Header      string    `json:"header"`
-	Description string    `json:"description"`
+	Description string    `json:"description,omitempty"`
 	Links       linkSlice `json:"links"`
 }
 
@@ -52,6 +55,20 @@ func (s *sectionSlice) Scan(v interface{}) error {
 	return json.Unmarshal(data, s)
 }
 
+func (t *timeStamp) MarshalJSON() ([]byte, error) {
+	return json.Marshal(time.Time(*t))
+}
+
+func (t *timeStamp) UnmarshalJSON(data []byte) error {
+	cleanStr := strings.Trim(string(data), "\"")
+	timeStruct, err := time.Parse("2006-01-02T15:04:05Z", cleanStr)
+	if err != nil {
+		return err
+	}
+	*t = timeStamp(timeStruct)
+	return nil
+}
+
 func (t *timeStamp) Scan(v interface{}) error {
 	// Should be more strictly to check this type.
 	vt, err := time.Parse("2006-01-02 15:04:05", v.(string))
@@ -62,6 +79,6 @@ func (t *timeStamp) Scan(v interface{}) error {
 	return nil
 }
 
-func (t timeStamp) ToString() string {
-	return time.Time(t).Format("2006-01-02")
+func (t *timeStamp) ToString() string {
+	return time.Time(*t).Format("2006-01-02")
 }

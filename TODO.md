@@ -1,5 +1,4 @@
 # Must Have
-* Command line interface get/search
 * Have a list of "related" swdocs that is rendered if exists
 
 # Should have
@@ -10,3 +9,4 @@
 
 # Nice to have
 * Index on updated to speed up queries?!
+* How can we re-use CLI args between the different subcommands? For example the URL.
