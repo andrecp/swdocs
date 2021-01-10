@@ -14,7 +14,7 @@ SwDocs offers a single place with all the relevant links to your software, stop 
 By being a simple system with uniform views across all pages, SwDocs has some advantages:
 
 * Very simple to get up and running, it is a single binary;
-* Run for yourself in your machine or in a server for your company;
+* Run for yourself in your machine or in a server for your organization;
 * Offers a web ui (without javascript) and a CLI to navigate your docs;
 * Have all the relevant links to your code base *with* your code base;
 * Edit the links from where you edit your code, let your CI system update your docs when you push new code.
