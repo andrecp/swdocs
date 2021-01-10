@@ -26,11 +26,15 @@ For a software called `foo`, you can embed an URL like "http://swdocs.com/foo" i
 
 ## Install
 
+Download a release from the [Releases](https://github.com/andrecp/swdocs/releases) page and unpack the binary where you want
+
 ```bash
-> go get -u github.com/andrecp/swdocs/cmd/swdocs
+> tar -xvf swdocs-1.0.0.tar -C /tmp
+> cd /tmp
+> ./swdocs --help
 ```
 
-You can also download this repo and run `make build`.
+You can also clone this repo and build yourself, run `make build`.
 
 ## Usage
 
