@@ -158,3 +158,16 @@ This is what the UI looks like with a single swdoc on it from the [tests](tests/
 
 <img src="images/swdocs-home.png" width="800" />
 <img src="images/swdoc-page.png" width="800" /> 
+
+## Releasing
+
+We pack the binary and the templates and upload to the releases page of github for the tag!
+
+``` bash
+export RELEASE_TAG=1.0.0
+> git tag RELEASE_TAG -m"a release fixing something"
+> git push origin main --tags
+> tar -czvf swdocs-$RELEASE_TAG.tar.gz swdocs home.gohtml search.gohtml swdoc.gohtml
+
+# Upload the .tar.gz to github
+```
