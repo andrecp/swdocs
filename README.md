@@ -19,8 +19,8 @@ You can also download this repo and run `make build`.
 
 This is what the UI looks like with a single swdoc on it from the [tests](tests/rabbitmq.json)
 
-<img src="images/swdocs-home.png" width="800" /> ![The home page](images/swdocs-home.png)
-<img src="images/swdoc-page.png" width="800" /> ![Visualizing a SwDoc for rabbitmq](images/swdoc-page.png)
+<img src="images/swdocs-home.png" width="800" />
+<img src="images/swdoc-page.png" width="800" /> 
 
 ## Usage
 
