@@ -275,7 +275,7 @@ func main() {
 			log.Fatal(err.Error())
 		}
 		for _, swdoc := range r {
-			fmt.Println(swdoc.Name + " -> " + defaultHTTPAddress + "/" + swdoc.Name)
+			fmt.Println(swdoc.Name + " -> " + baseURL + "/" + swdoc.Name)
 		}
 
 	case "delete":
