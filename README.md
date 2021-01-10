@@ -61,7 +61,9 @@ SWDOCS_LOGLEVEL=debug
 # Apply either creates or updates an entry from a JSON file.
 > swdocs apply --file tests/rabbitmq.json
 
-# By default apply will use the process owner username, but, you can override it too for CIs (say from jenkins to parse the commit owner username)
+# By default apply will use the process owner username
+# You can override it too for CIs 
+# (Say from jenkins you parse the username from the commit metadata)
 > swdocs apply --file tests/rabbitmq.json --user ken
 ```
 
