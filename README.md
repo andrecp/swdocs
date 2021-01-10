@@ -33,7 +33,7 @@ For a software called `foo`, you can embed an URL like "http://swdocs.com/foo" i
 Download a release from the [Releases](https://github.com/andrecp/swdocs/releases) page and unpack the binary where you want
 
 ```bash
-> tar -xvf swdocs-1.0.0.tar -C /tmp
+> tar -xvf swdocs-1.0.0.tar.gz -C /tmp
 > cd /tmp
 > ./swdocs --help
 ```

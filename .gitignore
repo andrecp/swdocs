@@ -19,3 +19,5 @@ cmds/swdocs
 
 .idea
 .idea/*
+
+.DS_Store
