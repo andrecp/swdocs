@@ -1,7 +1,7 @@
 # swdocs
 Index all of your software docs easily! 
 
-SwDocs offers a single place with all the relevant links to your software, stop wasting your time trying to find for relevant docs across multiple systems:
+SwDocs offers a single place with all the relevant links to your software, stop wasting your time trying to find relevant docs across multiple systems:
 * Google Drive
 * Wikis
 * Readthedocs
@@ -14,12 +14,12 @@ SwDocs offers a single place with all the relevant links to your software, stop 
 * Prometheus Dashboards
 * (...)
 
-By being a simple system with uniform views across all pages, SwDocs has some advantages:
+Have a one stop shop! By being an indexer with templated views across all pages, SwDocs has some advantages:
 
+* Harder for people to get *creative* w/ the docs or diverge;
 * Very simple to get up and running, it is a single binary;
 * Run for yourself in your machine or in a server for your organization;
 * Offers a web ui (without javascript) and a CLI to navigate your docs;
-* Harder for people to get *creative* w/ the docs or diverge;
 * Have all the relevant links to your code base *with* your code base;
 * Edit the links from where you edit your code, let your CI system update your docs when you push new code.
 
