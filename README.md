@@ -15,13 +15,6 @@ Aggregate all of your software docs easily!
 
 You can also download this repo and run `make build`.
 
-## Screenshots
-
-This is what the UI looks like with a single swdoc on it from the [tests](tests/rabbitmq.json)
-
-<img src="images/swdocs-home.png" width="800" />
-<img src="images/swdoc-page.png" width="800" /> 
-
 ## Usage
 
 You can use SwDocs from a browser or from the CLI. You start by running the server and creating some docs through its `apply` CLI and then you can visualize and search from your favorite browser or through CLI operations like `get` and `list`.
@@ -107,3 +100,11 @@ The database gets created the first time the program runs.
 ```
 
 You likely want to backup your .sqlite file periodically!
+
+
+## Screenshots
+
+This is what the UI looks like with a single swdoc on it from the [tests](tests/rabbitmq.json)
+
+<img src="images/swdocs-home.png" width="800" />
+<img src="images/swdoc-page.png" width="800" /> 
