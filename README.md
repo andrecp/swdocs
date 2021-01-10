@@ -46,6 +46,18 @@ You can use SwDocs from a browser or from the CLI. You start by running the serv
 
 ### The web app
 
+#### Running
+
+```bash
+
+# Start the swdocs server w/ defaults and go to http://localhost:8087
+> swdocs serve
+
+# Create a .dev.env file as per the Configuration docs below
+> source .dev.env
+> swdocs serve
+```
+
 #### Configuration
 
 We provide defaults in the const block of [main.go](cmds/swdocs/main.go), you can override those with environment variables.
@@ -64,18 +76,6 @@ export SWDOCS_PORT='8087'
 export SWDOCS_HTTP_ADDR='http://localhost'
 # Log level of the web app and CLI.
 export SWDOCS_LOGLEVEL='debug'
-```
-
-#### Running
-
-```bash
-
-# Start the swdocs server w/ defaults and go to http://localhost:8087
-> swdocs serve
-
-# Create a .dev.env file as per the Configuration docs
-> source .dev.env
-> swdocs serve
 ```
 
 ### Creating and updating a SwDoc
