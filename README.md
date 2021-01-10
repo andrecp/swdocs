@@ -4,6 +4,9 @@ Index all of your software docs easily!
 SwDocs offers a single place with all the relevant links to your software, stop wasting your time trying to find for relevant docs across multiple systems:
 * Google Drive
 * Wikis
+* Readthedocs
+* Godocs
+* Cargo docs
 * Github
 * Grafana
 * Kibana
