@@ -9,6 +9,7 @@ SwDocs offers a single place with all the relevant links to your software, stop 
 * Kibana
 * Upstream websites
 * Prometheus Dashboards
+* (...)
 
 By being a simple system with uniform views across all pages, SwDocs has some advantages:
 
