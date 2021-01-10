@@ -1,9 +1,11 @@
 # swdocs
 Aggregate all of your software docs easily!
 
-* Very simple to get up and running, it is a single binary! Run for in your machine or for your company;
+* Very simple to get up and running, it is a single binary;
+* Run for yourself in your machine or in a server for your company;
 * Offers a web ui (without javascript) and a CLI to navigate your docs;
-* Have all the relevant links to your code base *with* your code base. Edit the links from where you edit your codem, let your CI system update your docs when you push new code.
+* Have all the relevant links to your code base *with* your code base;
+* Edit the links from where you edit your codem, let your CI system update your docs when you push new code.
 
 ## Install
 
@@ -17,8 +19,8 @@ You can also download this repo and run `make build`.
 
 This is what the UI looks like with a single swdoc on it from the [tests](tests/rabbitmq.json)
 
-[The home page](images/swdocs-home.png)
-[Visualizing a SwDoc for rabbitmq](images/swdoc-page.png)
+![The home page](images/swdocs-home.png)
+![Visualizing a SwDoc for rabbitmq](images/swdoc-page.png)
 
 ## Usage
 
