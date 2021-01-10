@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/user"
+	"strings"
 
 	"github.com/andrecp/swdocs"
 
@@ -18,18 +19,19 @@ import (
 const (
 	// Customizable via envvars.
 	defaultPort          = "8087"
-	defaultHTTPAddress   = "http://localhost:" + defaultPort
+	defaultHTTPAddress   = "http://localhost"
 	defaultTemplatesPath = "."
 	defaultDbPath        = "swdev.sqlite"
 	defaultLogLevel      = log.WarnLevel
 
 	// Other constants
 	subCommandHelp = `Missing or unsupported subcommand! You can use:
-  * swdocs apply -f file.json to create or update an entry
-  * swdocs get $swdocname to get info about a swdoc
-  * swdocs list to get available swdocs
-  * swdocs delete $swdocname to delete a swdoc
-  * swdocs serve to run the swdoc server
+  * swdocs bootstrap mysoftware    # Creates a mysoftware.json to be modified and used with apply
+  * swdocs apply mysoftware.json   # To create or update a swdoc for mysoftware
+  * swdocs get mysoftware          # To get info about a swdoc called mysoftware
+  * swdocs delete mysoftware       # To delete a swdoc called mysoftware
+  * swdocs list                    # To list available swdocs, use --filter to filter.
+  * swdocs serve                   # To run the swdoc server
 
 Every subcommand supports --help.
 	`
@@ -59,25 +61,32 @@ func init() {
 func main() {
 
 	// Declare command line subcommands and options.
+	bootstrapCmd := flag.NewFlagSet("bootstrap", flag.ExitOnError)
+
 	getCmd := flag.NewFlagSet("get", flag.ExitOnError)
-	nameGetCmd := getCmd.String("name", "", "The name of the SwDoc you want to get")
 	fmtGetCmd := getCmd.String("format", "human", "The format of the output, options are 'json' and 'human'")
-	urlGetCmd := getCmd.String("url", defaultHTTPAddress, "The URL to make the request to, in format of http://NAME:PORT")
 
 	applyCmd := flag.NewFlagSet("apply", flag.ExitOnError)
 	userApplyCmd := applyCmd.String("user", "", "Override the user, useful for CI")
-	filePathApplyCmd := applyCmd.String("file", "", "The JSON file you want to apply the changes from")
-	urlApplyCmd := applyCmd.String("url", defaultHTTPAddress, "The URL to make the request to, in format of http://NAME:PORT")
 
 	listCmd := flag.NewFlagSet("list", flag.ExitOnError)
 	filterListCmd := listCmd.String("filter", "%", "Filter by name, % is a wildcard.")
-	urlListrCmd := listCmd.String("url", defaultHTTPAddress, "The URL to make the request to, in format of http://NAME:PORT")
 
 	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
-	nameDeleteCmd := deleteCmd.String("name", "", "The name of the SwDoc you want to delete")
-	urlDeleteCmd := deleteCmd.String("url", defaultHTTPAddress, "The URL to make the request to, in format of http://NAME:PORT")
 
 	serveCmd := flag.NewFlagSet("serve", flag.ExitOnError)
+
+	httpAddr := os.Getenv("SWDOCS_HTTP_ADDR")
+	if httpAddr == "" {
+		httpAddr = defaultHTTPAddress
+	}
+
+	port := os.Getenv("SWDOCS_PORT")
+	if port == "" {
+		port = defaultPort
+	}
+
+	baseURL := httpAddr + ":" + port
 
 	// Verify we have at least one subcommand.
 	if len(os.Args) < 2 {
@@ -87,6 +96,40 @@ func main() {
 
 	// Call the right subcommand.
 	switch os.Args[1] {
+	case "bootstrap":
+		bootstrapCmd.Parse(os.Args[2:])
+		err := bootstrapCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		name := bootstrapCmd.Arg(0)
+		if name == "" {
+			fmt.Println("Must give one arg, SwDoc name, to bootstrap the file")
+			os.Exit(1)
+		}
+
+		jsonBootstrap := `
+	{
+		"name": "$NAME",
+		"description": "Describe $NAME here in a succint manner",
+		  "sections": [
+			{
+				"header": "Each section of $NAME has a header to group similar links",
+				"links": [
+					{
+						"url": "https://lmgtfy.app/?q=$NAME",
+						"description": "Search google for $NAME"
+					}
+				]
+			}
+		  ]
+	}`
+		fileContents := strings.ReplaceAll(jsonBootstrap, "$NAME", name)
+		fileName := name + ".json"
+		ioutil.WriteFile(fileName, []byte(fileContents), 0644)
+		fmt.Println(fileName + " created.")
+
 	case "get":
 		getCmd.Parse(os.Args[2:])
 		err := getCmd.Parse(os.Args[2:])
@@ -94,12 +137,13 @@ func main() {
 			log.Fatal(err.Error())
 		}
 
-		if *nameGetCmd == "" {
-			fmt.Println("--name is required to get a SwDocs")
+		name := getCmd.Arg(0)
+		if name == "" {
+			fmt.Println("A name arg is required to get a SwDocs")
 			os.Exit(1)
 		}
 
-		resp, err := http.Get(*urlGetCmd + "/api/v1/swdocs/" + *nameGetCmd)
+		resp, err := http.Get(baseURL + "/api/v1/swdocs/" + name)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -108,6 +152,11 @@ func main() {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			log.Fatal(err.Error())
+		}
+
+		if resp.StatusCode != 200 {
+			fmt.Println(string(body))
+			os.Exit(1)
 		}
 
 		r := swdocs.SwDoc{}
@@ -147,8 +196,9 @@ func main() {
 			log.Fatal(err.Error())
 		}
 
-		if *filePathApplyCmd == "" {
-			fmt.Println("--file is required to apply a file to SwDocs")
+		applyFilePath := applyCmd.Arg(0)
+		if applyFilePath == "" {
+			fmt.Println("A file path to a JSON is required as an argument to be apply.")
 			os.Exit(1)
 		}
 
@@ -163,7 +213,7 @@ func main() {
 			username = *userApplyCmd
 		}
 
-		jsonText, err := ioutil.ReadFile(*filePathApplyCmd)
+		jsonText, err := ioutil.ReadFile(applyFilePath)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -181,7 +231,7 @@ func main() {
 			log.Fatal(err.Error())
 		}
 
-		resp, err := http.Post(*urlApplyCmd+"/api/v1/swdocs/apply", "application/json", bytes.NewBuffer(requestBody))
+		resp, err := http.Post(baseURL+"/api/v1/swdocs/apply", "application/json", bytes.NewBuffer(requestBody))
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -192,7 +242,7 @@ func main() {
 			log.Fatal(err.Error())
 		}
 
-		log.Info(string(body))
+		fmt.Println(string(body))
 
 	case "list":
 		listCmd.Parse(os.Args[2:])
@@ -202,7 +252,7 @@ func main() {
 		}
 
 		client := &http.Client{}
-		req, err := http.NewRequest("GET", *urlListrCmd+"/api/v1/swdocs/", nil)
+		req, err := http.NewRequest("GET", baseURL+"/api/v1/swdocs/", nil)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -225,7 +275,7 @@ func main() {
 			log.Fatal(err.Error())
 		}
 		for _, swdoc := range r {
-			fmt.Println(swdoc.Name)
+			fmt.Println(swdoc.Name + " -> " + defaultHTTPAddress + "/" + swdoc.Name)
 		}
 
 	case "delete":
@@ -234,13 +284,14 @@ func main() {
 			log.Fatal(err.Error())
 		}
 
-		if *nameDeleteCmd == "" {
-			fmt.Println("--name is required when deleting an existing swdoc")
+		name := deleteCmd.Arg(0)
+		if name == "" {
+			fmt.Println("A name arg is required to delete a SwDocs")
 			os.Exit(1)
 		}
 
 		client := &http.Client{}
-		req, err := http.NewRequest("DELETE", *urlDeleteCmd+"/api/v1/swdocs/"+*nameDeleteCmd, nil)
+		req, err := http.NewRequest("DELETE", baseURL+"/api/v1/swdocs/"+name, nil)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -251,21 +302,14 @@ func main() {
 			log.Fatal(err.Error())
 		}
 
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatal(err.Error())
+		if resp.StatusCode != 200 {
+			fmt.Println("Something went wrong, check server logs.")
+			os.Exit(1)
 		}
-		log.Info(string(body))
+		fmt.Println("Ok.")
 
 	case "serve":
 		serveCmd.Parse(os.Args[2:])
-
-		// Use default from constant or envvar.
-		portAddr := os.Getenv("SWDOCS_PORT")
-		if portAddr == "" {
-			portAddr = defaultPort
-		}
 
 		dbPath := os.Getenv("SWDOCS_DB_PATH")
 		if dbPath == "" {
@@ -279,7 +323,7 @@ func main() {
 
 		// Create, initialize and run the app.
 		c := swdocs.AppConfig{
-			Port:          portAddr,
+			Port:          port,
 			DbPath:        dbPath,
 			TemplatesPath: templatesPath,
 		}

@@ -55,13 +55,15 @@ An usual way to set environment variables is via your systemd file or a .env. He
 ```bash
 > cat .dev.env
 # File for the sqlite database.
-export SWDOCS_DB_PATH=/tmp/swdocs.db
-# Where the contents of the `templates/` folder should be, you can also customize the templates if you want.
-export SWDOCS_TEMPLATES_PATH=/tmp/templates
+export SWDOCS_DB_PATH='/tmp/swdocs.db'
+# Where the contents of the `templates/` folder should be.
+export SWDOCS_TEMPLATES_PATH='/tmp/templates'
 # Port to run the web app at.
-export SWDOCS_PORT=8087
+export SWDOCS_PORT='8087'
+# Address the web app runs at.
+export SWDOCS_HTTP_ADDR='http://localhost'
 # Log level of the web app and CLI.
-export SWDOCS_LOGLEVEL=debug
+export SWDOCS_LOGLEVEL='debug'
 ```
 
 #### Running
@@ -79,13 +81,17 @@ export SWDOCS_LOGLEVEL=debug
 ### Creating and updating a SwDoc
 
 ```bash
+# Skeleton creates the skeleton of a JSON file for you to apply later.
+> swdocs bootstrap rabbitmq
+rabbitmq.json file created
+
 # Apply either creates or updates an entry from a JSON file.
-> swdocs apply --file tests/rabbitmq.json
+> swdocs apply rabbitmq.json
 
 # By default apply will use the process owner username
 # You can override it too for CIs 
 # (Say from jenkins you parse the username from the commit metadata)
-> swdocs apply --file tests/rabbitmq.json --user ken
+> swdocs apply rabbitmq.json --user ken
 ```
 
 ### Getting and listing SwDocs
@@ -99,16 +105,16 @@ export SWDOCS_LOGLEVEL=debug
 > swdocs list --filter rabbit%
 
 # Get the URLs for a swdoc from the terminal
-> swdocs get --name rabbitmq
+> swdocs get rabbitmq
 
 # Or the JSON
-> swdocs get --name rabbitmq --format json
+> swdocs get rabbitmq --format json
 ```
 
 ### Deleting a SwDoc
 
 ```
-> swdocs delete --name rabbitmq
+> swdocs delete rabbitmq
 ```
 
 ## SwDoc definition
