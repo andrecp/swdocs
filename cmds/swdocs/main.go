@@ -16,7 +16,14 @@ import (
 )
 
 const (
-	httpAddress    = "http://localhost:8087"
+	// Customizable via envvars.
+	defaultPort          = "8087"
+	defaultHTTPAddress   = "http://localhost:" + defaultPort
+	defaultTemplatesPath = "."
+	defaultDbPath        = "."
+	defaultLogLevel      = log.WarnLevel
+
+	// Other constants
 	subCommandHelp = `Missing or unsupported subcommand! You can use:
   * swdocs apply -f file.json to create or update an entry
   * swdocs get $swdocname to get info about a swdoc
@@ -38,7 +45,7 @@ func init() {
 	// Display Warn level log if unset
 	loglevel := os.Getenv("SWDOCS_LOGLEVEL")
 	if loglevel == "" {
-		log.SetLevel(log.WarnLevel)
+		log.SetLevel(defaultLogLevel)
 	} else {
 		loglevel, err := log.ParseLevel(loglevel)
 		if err != nil {
@@ -55,20 +62,20 @@ func main() {
 	getCmd := flag.NewFlagSet("get", flag.ExitOnError)
 	nameGetCmd := getCmd.String("name", "", "The name of the SwDoc you want to get")
 	fmtGetCmd := getCmd.String("format", "human", "The format of the output, options are 'json' and 'human'")
-	urlGetCmd := getCmd.String("url", httpAddress, "The URL to make the request to, in format of http://NAME:PORT")
+	urlGetCmd := getCmd.String("url", defaultHTTPAddress, "The URL to make the request to, in format of http://NAME:PORT")
 
 	applyCmd := flag.NewFlagSet("apply", flag.ExitOnError)
 	userApplyCmd := applyCmd.String("user", "", "Override the user, useful for CI")
 	filePathApplyCmd := applyCmd.String("file", "", "The JSON file you want to apply the changes from")
-	urlApplyCmd := applyCmd.String("url", httpAddress, "The URL to make the request to, in format of http://NAME:PORT")
+	urlApplyCmd := applyCmd.String("url", defaultHTTPAddress, "The URL to make the request to, in format of http://NAME:PORT")
 
 	listCmd := flag.NewFlagSet("list", flag.ExitOnError)
 	filterListCmd := listCmd.String("filter", "%", "Filter by name, % is a wildcard.")
-	urlListrCmd := listCmd.String("url", httpAddress, "The URL to make the request to, in format of http://NAME:PORT")
+	urlListrCmd := listCmd.String("url", defaultHTTPAddress, "The URL to make the request to, in format of http://NAME:PORT")
 
 	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
 	nameDeleteCmd := deleteCmd.String("name", "", "The name of the SwDoc you want to delete")
-	urlDeleteCmd := deleteCmd.String("url", httpAddress, "The URL to make the request to, in format of http://NAME:PORT")
+	urlDeleteCmd := deleteCmd.String("url", defaultHTTPAddress, "The URL to make the request to, in format of http://NAME:PORT")
 
 	serveCmd := flag.NewFlagSet("serve", flag.ExitOnError)
 
@@ -253,10 +260,32 @@ func main() {
 
 	case "serve":
 		serveCmd.Parse(os.Args[2:])
-		a := swdocs.App{}
-		a.Initialize(os.Getenv("SWDOCS_DBPATH"))
 
-		a.Run(os.Getenv("SWDOCS_PORT"))
+		// Use default from constant or envvar.
+		portAddr := os.Getenv("SWDOCS_PORT")
+		if portAddr == "" {
+			portAddr = defaultPort
+		}
+
+		dbPath := os.Getenv("SWDOCS_DB_PATH")
+		if dbPath == "" {
+			dbPath = defaultDbPath
+		}
+
+		templatesPath := os.Getenv("SWDOCS_TEMPLATES_PATH")
+		if templatesPath == "" {
+			templatesPath = defaultTemplatesPath
+		}
+
+		// Create, initialize and run the app.
+		c := swdocs.AppConfig{
+			Port:          portAddr,
+			DbPath:        dbPath,
+			TemplatesPath: templatesPath,
+		}
+		a := swdocs.App{Config: c}
+		a.Initialize()
+		a.Run()
 
 	default:
 		fmt.Println(subCommandHelp)

@@ -17,11 +17,19 @@ import (
 )
 
 // App is the struct representing our web application containing
-// the database connection, the router and a mutex.
+// the database connection, the router, a mutex and its configuration.
 type App struct {
 	Router *mux.Router
 	DB     *sql.DB
 	Mutex  sync.Mutex
+	Config AppConfig
+}
+
+// AppConfig holds the configuration used by the application.
+type AppConfig struct {
+	Port          string
+	TemplatesPath string
+	DbPath        string
 }
 
 func (a *App) initializeRoutes() {
@@ -37,13 +45,13 @@ func (a *App) initializeRoutes() {
 
 }
 
-func (a *App) createDbIfNotExists(dbpath string) (bool, error) {
-	_, err := os.Stat(dbpath)
+func (a *App) createDbIfNotExists() (bool, error) {
+	_, err := os.Stat(a.Config.DbPath)
 	if err == nil {
-		log.Info("Database " + dbpath + " already exists")
+		log.Info("Database " + a.Config.DbPath + " already exists")
 	} else if os.IsNotExist(err) {
-		log.Info("Creating database " + dbpath)
-		file, err := os.Create(dbpath)
+		log.Info("Creating database " + a.Config.DbPath)
+		file, err := os.Create(a.Config.DbPath)
 		if err != nil {
 			return true, err
 		}
@@ -70,17 +78,17 @@ func (a *App) populateDb() error {
 }
 
 // Initialize the web app database and routes.
-func (a *App) Initialize(dbpath string) {
+func (a *App) Initialize() {
 	var err error
 
 	// Create DB file if not exists.
-	exists, err := a.createDbIfNotExists(dbpath)
+	exists, err := a.createDbIfNotExists()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
 	// Open up a DB connection.
-	a.DB, err = sql.Open("sqlite3", dbpath)
+	a.DB, err = sql.Open("sqlite3", a.Config.DbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,6 +107,6 @@ func (a *App) Initialize(dbpath string) {
 }
 
 // Run the web application.
-func (a *App) Run(addr string) {
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", addr), a.Router))
+func (a *App) Run() {
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", a.Config.Port), a.Router))
 }

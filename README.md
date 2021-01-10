@@ -44,19 +44,36 @@ You can also clone this repo and build yourself, run `make build`.
 
 You can use SwDocs from a browser or from the CLI. You start by running the server and creating some docs through its `apply` CLI and then you can visualize and search from your favorite browser or through CLI operations like `get` and `list`.
 
-### Running the server
+### The web app
+
+#### Configuration
+
+We provide defaults in the const block of [main.go](cmds/swdocs/main.go), you can override those with environment variables.
+
+An usual way to set environment variables is via your systemd file or a .env. Here is an example of overridding every config.
+
+```bash
+> cat .dev.env
+# File for the sqlite database.
+export SWDOCS_DB_PATH=/tmp/swdocs.db
+# Where the contents of the `templates/` folder should be, you can also customize the templates if you want.
+export SWDOCS_TEMPLATES_PATH=/tmp/templates
+# Port to run the web app at.
+export SWDOCS_PORT=8087
+# Log level of the web app and CLI.
+export SWDOCS_LOGLEVEL=debug
+```
+
+#### Running
 
 ```bash
 
-# Create the .env file
-> cat .dev.env
-SWDOCS_DBPATH=/tmp/swdocs.db
-SWDOCS_PORT=8087
-SWDOCS_LOGLEVEL=debug
+# Start the swdocs server w/ defaults and go to http://localhost:8087
+> swdocs serve
 
-# Start the swdocs server and go to http://localhost:8087
-> make run  # or source .dev.env && swdocs serve
-
+# Create a .dev.env file as per the Configuration docs
+> source .dev.env
+> swdocs serve
 ```
 
 ### Creating and updating a SwDoc

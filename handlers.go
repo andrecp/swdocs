@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -41,7 +42,7 @@ func respondWithError(w http.ResponseWriter, code int, message string) {
 // Templated HTML pages //
 
 func (a *App) homeHandler(w http.ResponseWriter, r *http.Request) {
-	message, err := ioutil.ReadFile("../../templates/home.gohtml")
+	message, err := ioutil.ReadFile(filepath.Join(a.Config.TemplatesPath, "home.gohtml"))
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -80,7 +81,7 @@ func (a *App) homeHandler(w http.ResponseWriter, r *http.Request) {
 func (a *App) swDocHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	swdocName := params["swDocName"]
-	message, err := ioutil.ReadFile("../../templates/swdoc.gohtml")
+	message, err := ioutil.ReadFile(filepath.Join(a.Config.TemplatesPath, "swdoc.gohtml"))
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -112,7 +113,7 @@ func (a *App) swDocHandler(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) searchHandler(w http.ResponseWriter, r *http.Request) {
 	searchParams := r.URL.Query().Get("swdocsearch")
-	message, err := ioutil.ReadFile("../../templates/search.gohtml")
+	message, err := ioutil.ReadFile(filepath.Join(a.Config.TemplatesPath, "search.gohtml"))
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return

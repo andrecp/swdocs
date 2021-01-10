@@ -1,14 +1,13 @@
 SHELL := /bin/bash
-include .dev.env
-export
 
 .phony: build, run
 
 build:
+	cp templates/* cmds/swdocs
 	cd cmds/swdocs && go build .;
 
 run: build
-	cd cmds/swdocs && ./swdocs serve;
+	source .dev.env && cd cmds/swdocs && ./swdocs serve;
 
 test:
 	go test -v ./...
