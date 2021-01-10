@@ -20,7 +20,7 @@ const (
 	defaultPort          = "8087"
 	defaultHTTPAddress   = "http://localhost:" + defaultPort
 	defaultTemplatesPath = "."
-	defaultDbPath        = "."
+	defaultDbPath        = "swdev.sqlite"
 	defaultLogLevel      = log.WarnLevel
 
 	// Other constants
