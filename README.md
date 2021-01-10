@@ -5,7 +5,7 @@ Aggregate all of your software docs easily!
 * Run for yourself in your machine or in a server for your company;
 * Offers a web ui (without javascript) and a CLI to navigate your docs;
 * Have all the relevant links to your code base *with* your code base;
-* Edit the links from where you edit your codem, let your CI system update your docs when you push new code.
+* Edit the links from where you edit your code, let your CI system update your docs when you push new code.
 
 ## Install
 
